@@ -1,0 +1,12 @@
+{
+    "screen_height" : 400,
+    "screen_width" : 500,
+    "K_D" : 20,
+    "K_S" : 200000,
+    "K_G" : 1,
+    "lambda_D" : 0.1,
+    "lambda_S" : 0.6,
+    "lambda_G" : -1,
+    "no_of_sheep_in_social_group" : 2,
+    "sheep_vision_range" : 60
+}
