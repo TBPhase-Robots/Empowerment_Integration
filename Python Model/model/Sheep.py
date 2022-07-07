@@ -38,6 +38,8 @@ class Sheep(Agent):
 
         super().update(screen)
         pygame.draw.circle(screen, colours.WHITE, self.position, 5)
+        if (cfg['debug_mode']):
+            pygame.draw.circle(screen, colours.SRANGE[self.closest_dog.id], self.position, 4)
     #end function
 
     def set_closest_dog(self, dog):

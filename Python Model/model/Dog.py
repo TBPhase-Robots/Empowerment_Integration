@@ -49,16 +49,17 @@ class Dog(Agent):
             
             F = (cfg['dog_forces_with_flock'] * F_H) + (cfg['dog_repulsion_from_dogs'] * F_D)
 
-            #pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, 10 * cfg['dog_forces_with_flock'] * F_H), 8)
-            #pygame.draw.line(screen, colours.ORANGE, self.position, np.add(self.position, 10 * cfg['dog_repulsion_from_dogs'] * F_D), 8)
-            pygame.draw.circle(screen, colours.BLACK, steering_point, 4)
+            if (cfg['debug_mode']):
+                pygame.draw.line(screen, colours.ORANGE, self.position, np.add(self.position, 10 * cfg['dog_repulsion_from_dogs'] * F_D), 8)
+                pygame.draw.circle(screen, colours.BLACK, steering_point, 4)
 
             self.position = np.add(self.position, F)
             #print(self.position)
 
         super().update(screen)
         pygame.draw.circle(screen, colours.BLUE, self.position, 5)
-        #pygame.draw.circle(screen, colours.SRANGE[self.id], self.position, 4)
+        if (cfg['debug_mode']):
+            pygame.draw.circle(screen, colours.SRANGE[self.id], self.position, 4)
     #end function
 
     def calcCoM(self, vector_list):
@@ -126,10 +127,10 @@ class Dog(Agent):
         F_W = R_D_W
         F_T = H_T * R_D_T
 
-        #print((cfg['dog_repulsion_from_sheep'] * F_F) , (cfg['dog_attraction_to_steering_point'] * F_W) , (cfg['dog_orbital_around_flock'] * F_T))
-        # pygame.draw.line(screen, colours.GREEN, self.position, np.add(self.position, 10 * cfg['dog_repulsion_from_sheep'] * F_F), 8)
-        # pygame.draw.line(screen, colours.RED, self.position, np.add(self.position, 10 * cfg['dog_attraction_to_steering_point'] * F_W), 8)
-        # pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, 10 * cfg['dog_orbital_around_flock'] * F_T), 8)
+        if (cfg['debug_mode']):
+            pygame.draw.line(screen, colours.GREEN, self.position, np.add(self.position, 10 * cfg['dog_repulsion_from_sheep'] * F_F), 8)
+            pygame.draw.line(screen, colours.RED, self.position, np.add(self.position, 10 * cfg['dog_attraction_to_steering_point'] * F_W), 8)
+            pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, 10 * cfg['dog_orbital_around_flock'] * F_T), 8)
         F_H = (cfg['dog_repulsion_from_sheep'] * F_F) + (cfg['dog_attraction_to_steering_point'] * F_W) + (cfg['dog_orbital_around_flock'] * F_T)
 
         return F_H

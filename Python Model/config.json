@@ -1,19 +1,25 @@
 {
     "screen_height" : 1600,
     "screen_width" : 1200,
+    "debug_mode" : true,
+
     "sheep_resulsion_from_dogs" : 20,
     "sheep_repulsion_from_sheep" : 200,
     "sheep_attraction_to_sheep" : 1,
+
     "lambda_D" : 0.1,
     "lambda_S" : 0.6,
     "lambda_G" : -1,
+
     "no_of_sheep_in_social_group" : 2,
     "sheep_vision_range" : 80,
     "grazing_movement_chance" : 0.3,
+
     "dog_forces_with_flock" : 1,
     "dog_repulsion_from_dogs" : 0.2,
     "dog_repulsion_from_sheep" : 0.4,
     "dog_attraction_to_steering_point" : 4,
     "dog_orbital_around_flock" : 8,
+    
     "ticks_per_target_sheep" : 50
 }

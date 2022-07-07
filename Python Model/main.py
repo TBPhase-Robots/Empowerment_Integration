@@ -75,6 +75,10 @@ def main():
     herd.add(agent)
     agent = Dog(position = np.array([400, 710.76]), id = 2, cfg = cfg)
     herd.add(agent)
+    agent = Dog(position = np.array([870, 580]), id = 3, cfg = cfg)
+    herd.add(agent)
+    agent = Dog(position = np.array([280, 710.76]), id = 4, cfg = cfg)
+    herd.add(agent)
 
     agent = Sheep(position = np.array([880, 580]), id = 3, cfg = cfg)
     flock.add(agent)
