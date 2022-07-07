@@ -27,35 +27,17 @@ def calc_voronoi_partitioning(flock, herd):
         sheep.closest_dog.add_sheep_to_sub_flock(sheep)
 #end function
 
-# def voronoi_plot_agents(flock, herd):
-#     sheep_positions = []
-#     dog_positions = []
+def add_sheep(flock, position, cfg, flock_id):
+    agent = Sheep(position = position, id = flock_id, cfg = cfg)
+    flock.add(agent)
+    return flock_id + 1
+#end function
 
-#     xs = []
-#     ys = []
-
-#     for sheep in flock:
-#         xs.append(sheep.position[0])
-#         ys.append(sheep.position[1])
-#         sheep_positions.append(sheep.position)
-
-#     for dog in herd:
-#         dog_positions.append(dog.position)
-    
-#     vor = Voronoi(dog_positions)
-#     fig = voronoi_plot_2d(vor)
-    
-#     for dog in herd:
-#         plt.scatter([dog.position[0]], [dog.position[1]], color=np.array(colours.ERANGE[dog.id]) / 255)
-
-#     for sheep in flock:
-#         plt.scatter([sheep.position[0]], [sheep.position[1]], color=np.array(colours.ERANGE[sheep.closest_dog.id]) / 255)
-
-
-#     plt.scatter(xs, ys, color='red', s=3)
-#     plt.gca().invert_yaxis()
-#     plt.show()
-# #end function
+def add_dog(herd, position, cfg, herd_id):
+    agent = Dog(position = position, id = herd_id, cfg = cfg)
+    herd.add(agent)
+    return herd_id + 1
+#end function
 
 def main():
     with open(config_file_name) as json_file:
@@ -68,38 +50,17 @@ def main():
     screen = pygame.display.set_mode([cfg['screen_width'],cfg['screen_width']])
     herd = pygame.sprite.Group()
     flock = pygame.sprite.Group()
+    herd_id = 0
+    flock_id = 0
 
-    agent = Dog(position = np.array([600, 410.76]), id = 0, cfg = cfg)
-    herd.add(agent)
-    agent = Dog(position = np.array([600, 408.76]), id = 1, cfg = cfg)
-    herd.add(agent)
-    agent = Dog(position = np.array([400, 710.76]), id = 2, cfg = cfg)
-    herd.add(agent)
-    agent = Dog(position = np.array([870, 580]), id = 3, cfg = cfg)
-    herd.add(agent)
-    agent = Dog(position = np.array([280, 710.76]), id = 4, cfg = cfg)
-    herd.add(agent)
+    herd_id = add_dog(herd, np.array([600, 410.76]), cfg, herd_id)
+    herd_id = add_dog(herd, np.array([600, 408.76]), cfg, herd_id)
+    herd_id = add_dog(herd, np.array([400, 710.76]), cfg, herd_id)
+    herd_id = add_dog(herd, np.array([670, 580]), cfg, herd_id)
+    herd_id = add_dog(herd, np.array([280, 710.76]), cfg, herd_id)
 
-    agent = Sheep(position = np.array([880, 580]), id = 3, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([600, 600]), id = 1, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([60, 560]), id = 2, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([280, 600]), id = 3, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([370, 370]), id = 4, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([810, 580]), id = 5, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([120, 600]), id = 6, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([60, 760]), id = 7, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([280, 20]), id = 8, cfg = cfg)
-    flock.add(agent)
-    agent = Sheep(position = np.array([390, 370]), id = 9, cfg = cfg)
-    flock.add(agent)
+    for i in range(0, 9):
+        flock_id = add_sheep(flock, np.array([random.uniform(cfg['screen_width'] / 2 - 175, cfg['screen_width'] / 2 + 175), random.uniform(cfg['screen_height'] / 2 - 175, cfg['screen_height'] / 2 + 175)]), cfg, flock_id)
 
     while True:
         for event in pygame.event.get():
@@ -109,19 +70,19 @@ def main():
 
         screen.fill(colours.GREY)
 
-        calc_voronoi_partitioning(flock, herd)
-        #voronoi_plot_agents(flock, herd)
+        if (len(herd) > 0):
+            calc_voronoi_partitioning(flock, herd)
+            herd.update(screen, flock, herd, cfg)
+        else:
+            for sheep in flock:
+                sheep.closest_dog = None
 
-        herd.update(screen, flock, herd, cfg)
         flock.update(screen, flock, herd, cfg)
 
         pygame.display.flip()
         #pygame.display.update()
 
         pygame.time.wait(10)
-
-        for sheep in flock:
-            sheep.do_stuff = True
 #end function
 
 main()

@@ -15,12 +15,17 @@ class Sheep(Agent):
     #end function
 
     def update(self, screen, flock, herd, cfg):
-        if (np.linalg.norm(self.position - self.closest_dog.position) <= cfg['sheep_vision_range']):
-            self.grazing = False
+        if (self.closest_dog != None):
+            if (np.linalg.norm(self.position - self.closest_dog.position) <= cfg['sheep_vision_range']):
+                self.grazing = False
+            else:
+                if (random.random() < 0.05):
+                    self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+                self.grazing = True
         else:
+            self.grazing = True
             if (random.random() < 0.05):
                 self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
-            self.grazing = True
 
         if (self.grazing):
             F_S = self.calc_F_S(flock, cfg)
@@ -39,7 +44,8 @@ class Sheep(Agent):
         super().update(screen)
         pygame.draw.circle(screen, colours.WHITE, self.position, 5)
         if (cfg['debug_mode']):
-            pygame.draw.circle(screen, colours.SRANGE[self.closest_dog.id], self.position, 4)
+            if (self.closest_dog != None):
+                pygame.draw.circle(screen, colours.SRANGE[self.closest_dog.id], self.position, 4)
     #end function
 
     def set_closest_dog(self, dog):
@@ -98,7 +104,7 @@ class Sheep(Agent):
         C = Agent.calcCoM(self, sheep_positons)
         C_i = Agent.calcCoM(self, social_group_positions)
         C_i_prime = Agent.calcCoM(self, external_group_positions)
-
+        
         C_direction = C - self.position
         C_magnitude = np.linalg.norm(C_direction)
         C_i_direction = C_i - self.position
