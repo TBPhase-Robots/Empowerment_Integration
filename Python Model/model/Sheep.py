@@ -4,27 +4,37 @@ import colours
 from model.Agent import Agent
 import math
 import random
-from model.Dog import Dog
 
 class Sheep(Agent):
 
     def __init__(self, position, id, cfg) -> None:
         super().__init__(position, id, cfg)
         self.closest_dog = None
+        self.grazing = True
+        self.grazing_direction = np.array([1, 0])
     #end function
 
     def update(self, screen, flock, herd, cfg):
         if (np.linalg.norm(self.position - self.closest_dog.position) <= cfg['sheep_vision_range']):
+            self.grazing = False
+        else:
+            if (random.random() < 0.05):
+                self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+            self.grazing = True
+
+        if (self.grazing):
+            F_S = self.calc_F_S(flock, cfg)
+            self.position = np.add(self.position, (cfg['sheep_repulsion_from_sheep'] * F_S))
+            if (random.random() < cfg['grazing_movement_chance']):
+                self.position = np.add(self.position, self.grazing_direction)
+        else:
             F_D = self.calc_F_D(herd, cfg)
             F_S = self.calc_F_S(flock, cfg)
             F_G = self.cal_F_G(flock, cfg)
 
-            F = (cfg['K_D'] * F_D) + (cfg['K_S'] * F_S) + (cfg['K_G'] * F_G)
+            F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 
             self.position = np.add(self.position, F)
-        else:
-            if (random.randint(0, 100) < 5):
-                self.position = np.add(self.position, np.array([random.uniform(-1, 1), random.uniform(-1, 1)]))
 
         super().update(screen)
         pygame.draw.circle(screen, colours.WHITE, self.position, 5)
