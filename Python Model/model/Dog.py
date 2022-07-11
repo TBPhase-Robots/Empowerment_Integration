@@ -21,6 +21,7 @@ class Dog(Agent):
         self.driving_point = np.zeros(2)
         self.state = 'collecting'
         self.steering_point = np.zeros(2)
+        self.empowerment = 0
     #end function 
 
     def update(self, screen, flock, herd, target, cfg):
@@ -75,8 +76,17 @@ class Dog(Agent):
                         if (np.linalg.norm(self.position - dog.position) <= 8):
                             self.position = np.add(self.position, self.position - dog.position)
                             collision_check = True
+
+            flock_proportion = len(self.sub_flock) / len(flock)
+            if (flock_proportion <= 0.25):
+                self.empowerment = np.array([255, round(255 * flock_proportion / 0.25), 0])
+            elif (flock_proportion <= 0.5):
+                self.empowerment = np.array([255 - round(255 * (flock_proportion - 0.25) / 0.25), 255, 0])
+            else:
+                self.empowerment = np.array([0, 255 - round(100 * (flock_proportion - 0.5) / 0.5), 0])
         else:
             self.state = 'unassigned'
+            self.empowerment = np.array([255, 0, 0])
 
         super().update(screen)
         if (cfg['debug_dog_states']):
@@ -87,9 +97,17 @@ class Dog(Agent):
             else:
                 pygame.draw.circle(screen, colours.BLUE, self.position, 5)
         else:
-            pygame.draw.circle(screen, colours.BLUE, self.position, 5)
+            if (cfg['show_empowerment']):
+                colour = [self.empowerment[0], self.empowerment[1], self.empowerment[2]]
+                pygame.draw.circle(screen, colour, self.position, 5)
+            else:
+                pygame.draw.circle(screen, colours.BLUE, self.position, 5)
+
         if (cfg['debug_sub_flocks']):
-            pygame.draw.circle(screen, colours.SRANGE[self.id], self.position, 4)
+            if (self.id < 5):
+                pygame.draw.circle(screen, colours.SRANGE[self.id], self.position, 4)
+            else:
+                pygame.draw.circle(screen, colours.BLACK, self.position, 4)
     #end function
 
     def empty_sub_flock(self):

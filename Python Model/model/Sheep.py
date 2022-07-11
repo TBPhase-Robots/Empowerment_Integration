@@ -66,7 +66,10 @@ class Sheep(Agent):
             pygame.draw.circle(screen, colours.WHITE, self.position, 5)
         if (cfg['debug_sub_flocks']):
             if (self.closest_dog != None):
-                pygame.draw.circle(screen, colours.SRANGE[self.closest_dog.id], self.position, 4)
+                if (self.closest_dog.id < 5):
+                    pygame.draw.circle(screen, colours.SRANGE[self.closest_dog.id], self.position, 4)
+                else:
+                    pygame.draw.circle(screen, colours.BLACK, self.position, 4)
     #end function
 
     def set_closest_dog(self, dog):

@@ -8,6 +8,8 @@
     "debug_sheep_states" : false,
     "debug_dog_states" : false,
 
+    "show_empowerment" : true,
+
     "sheep_resulsion_from_dogs" : 20,
     "sheep_repulsion_from_sheep" : 300,
     "sheep_attraction_to_sheep" : 1,
@@ -27,6 +29,6 @@
     "dog_orbital_around_flock" : 8,
     
     "ticks_per_choice" : 5,
-
-    "collection_radius" : 50
+    "collection_radius" : 50,
+    "max_number_of_dogs" : 10
 }

@@ -53,11 +53,6 @@ def main():
     herd_id = 0
     flock_id = 0
 
-    herd_id = add_dog(herd, np.array([400, 100]), cfg, herd_id)
-    #herd_id = add_dog(herd, np.array([100, 400]), cfg, herd_id)
-    #herd_id = add_dog(herd, np.array([700, 400]), cfg, herd_id)
-    #herd_id = add_dog(herd, np.array([400, 700]), cfg, herd_id)
-
     for i in range(0, 30):
         flock_id = add_sheep(flock, np.array([random.uniform(cfg['screen_width'] / 2 - 200, cfg['screen_width'] / 2 + 200), random.uniform(cfg['screen_height'] / 2 - 200, cfg['screen_height'] / 2 + 200)]), cfg, flock_id)
 
@@ -67,7 +62,7 @@ def main():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if event.button == 1:
+                if (event.button == 1 and len(herd) < cfg['max_number_of_dogs']):
                     herd_id = add_dog(herd, np.array([event.pos[0], event.pos[1]]), cfg, herd_id)
                 elif event.button == 3:
                     if (len(herd) > 0):
@@ -76,7 +71,7 @@ def main():
                             if closest_dog == None:
                                 closest_dog = dog
                             else:
-                                if (np.linalg.norm(np.array([event.pos[0], event.pos[1]]) - dog.position)) < np.linalg.norm(np.array([event.pos[0], event.pos[1]] - closest_dog.position)):
+                                if (np.linalg.norm(event.pos - dog.position) < np.linalg.norm(event.pos - closest_dog.position)):
                                     closest_dog = dog
                         herd.remove(closest_dog)
 
