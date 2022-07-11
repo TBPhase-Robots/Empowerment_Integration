@@ -1,13 +1,18 @@
 {
     "screen_width" : 800,
     "screen_height" : 800,
-    "debug_mode" : true,
+    "debug_dog_forces" : false,
+    "debug_sheep_forces" : false,
+    "debug_steering_points" : false,
+    "debug_sub_flocks" : false,
+    "debug_sheep_states" : false,
+    "debug_dog_states" : false,
 
     "sheep_resulsion_from_dogs" : 20,
-    "sheep_repulsion_from_sheep" : 200,
+    "sheep_repulsion_from_sheep" : 300,
     "sheep_attraction_to_sheep" : 1,
 
-    "lambda_D" : 0.1,
+    "lambda_D" : 0.1,   
     "lambda_S" : 0.6,
     "lambda_G" : -1,
 
@@ -17,9 +22,11 @@
 
     "dog_forces_with_flock" : 1,
     "dog_repulsion_from_dogs" : 0.2,
-    "dog_repulsion_from_sheep" : 0.4,
+    "dog_repulsion_from_sheep" : 0.1,
     "dog_attraction_to_steering_point" : 4,
     "dog_orbital_around_flock" : 8,
     
-    "ticks_per_target_sheep" : 50
+    "ticks_per_choice" : 5,
+
+    "collection_radius" : 50
 }

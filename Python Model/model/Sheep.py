@@ -1,3 +1,4 @@
+from cv2 import magnitude
 import pygame
 import numpy as np
 import colours
@@ -41,9 +42,29 @@ class Sheep(Agent):
 
             self.position = np.add(self.position, F)
 
+            if (cfg['debug_sheep_forces']):
+                pygame.draw.line(screen, colours.ORANGE, self.position, np.add(self.position, 10 * cfg['sheep_resulsion_from_dogs'] * F_D), 8)
+                pygame.draw.line(screen, colours.GREEN, self.position, np.add(self.position, 10 * cfg['sheep_repulsion_from_sheep'] * F_S), 8)
+                pygame.draw.line(screen, colours.RED, self.position, np.add(self.position, 10 * cfg['sheep_attraction_to_sheep'] * F_G), 8)
+
+        collision_check = True
+        while (collision_check):
+            collision_check = False
+            for sheep in flock:
+                if (sheep.id != self.id):
+                    if (np.linalg.norm(self.position - sheep.position) <= 8):
+                        self.position = np.add(self.position, self.position - sheep.position)
+                        collision_check = True
+
         super().update(screen)
-        pygame.draw.circle(screen, colours.WHITE, self.position, 5)
-        if (cfg['debug_mode']):
+        if (cfg['debug_sheep_states']):
+            if (self.grazing):
+                pygame.draw.circle(screen, colours.GRAZE, self.position, 5)
+            else:
+                pygame.draw.circle(screen, colours.HERD, self.position, 5)
+        else:
+            pygame.draw.circle(screen, colours.WHITE, self.position, 5)
+        if (cfg['debug_sub_flocks']):
             if (self.closest_dog != None):
                 pygame.draw.circle(screen, colours.SRANGE[self.closest_dog.id], self.position, 4)
     #end function
@@ -54,10 +75,6 @@ class Sheep(Agent):
 
     def set_do_stuff(self, bool):
         self.do_stuff = bool
-
-    def calcCoM(self, vector_list):
-        super().calcCoM()
-    #end function
 
     def calc_F_D(self, herd, cfg):
         sum = np.zeros(2)

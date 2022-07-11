@@ -16,11 +16,14 @@ class Dog(Agent):
         super().__init__(position, id, cfg)
         self.sub_flock = pygame.sprite.Group()
         self.direction = np.array([1, 0])
-        self.furthest_sheep_tick_count = 0
+        self.choice_tick_count = 0
         self.target_sheep = Sheep
+        self.driving_point = np.zeros(2)
+        self.state = 'collecting'
+        self.steering_point = np.zeros(2)
     #end function 
 
-    def update(self, screen, flock, herd, cfg):
+    def update(self, screen, flock, herd, target, cfg):
         if (len(self.sub_flock) > 0):
             sheep_positions = []
             for sheep in flock:
@@ -28,7 +31,8 @@ class Dog(Agent):
             C = Agent.calcCoM(self, sheep_positions)
             furthest_sheep_position = C
 
-            if (self.furthest_sheep_tick_count == 0):
+            if (self.choice_tick_count == 0):
+                self.driving_point = np.add(C, 50 * (C - target) / np.linalg.norm(C - target))
                 for sheep in self.sub_flock:
                     if (np.linalg.norm(sheep.position - C) > np.linalg.norm(furthest_sheep_position - C)):
                         furthest_sheep_position = sheep.position
@@ -36,34 +40,56 @@ class Dog(Agent):
             
             furthest_sheep_position = self.target_sheep.position
 
-            self.furthest_sheep_tick_count += 1
-            if (self.furthest_sheep_tick_count >= cfg['ticks_per_target_sheep']):
-                self.furthest_sheep_tick_count = 0
+            if (self.choice_tick_count == 0):
+                if (np.linalg.norm(furthest_sheep_position - C) < cfg['collection_radius']):
+                    self.state = 'driving'
+                else:
+                    self.state = 'collecting'
 
-            steering_point = np.add(furthest_sheep_position, 20 * (furthest_sheep_position - C) / np.linalg.norm(furthest_sheep_position - C))
+            self.choice_tick_count += 1
+            if (self.choice_tick_count >= cfg['ticks_per_choice']):
+                self.choice_tick_count = 0
 
-            #print(self.position, steering_point, furthest_sheep_position, C)
+            if (self.state == 'driving'):
+                self.steering_point = self.driving_point
+            elif (self.state == 'collecting'):
+                self.steering_point = np.add(furthest_sheep_position, 20 * (furthest_sheep_position - C) / np.linalg.norm(furthest_sheep_position - C))
 
-            F_H = self.calc_F_H(screen, cfg, steering_point, flock)
+            F_H = self.calc_F_H(screen, cfg, self.steering_point, flock)
             F_D = self.calc_F_D(herd)
             
             F = (cfg['dog_forces_with_flock'] * F_H) + (cfg['dog_repulsion_from_dogs'] * F_D)
 
-            if (cfg['debug_mode']):
+            if (cfg['debug_dog_forces']):
                 pygame.draw.line(screen, colours.ORANGE, self.position, np.add(self.position, 10 * cfg['dog_repulsion_from_dogs'] * F_D), 8)
-                pygame.draw.circle(screen, colours.BLACK, steering_point, 4)
+            if (cfg['debug_steering_points']):
+                pygame.draw.circle(screen, colours.BLACK, self.steering_point, 4)
 
             self.position = np.add(self.position, F)
-            #print(self.position)
+
+            collision_check = True
+            while (collision_check):
+                collision_check = False
+                for dog in herd:
+                    if (dog.id != self.id):
+                        if (np.linalg.norm(self.position - dog.position) <= 8):
+                            self.position = np.add(self.position, self.position - dog.position)
+                            collision_check = True
+        else:
+            self.state = 'unassigned'
 
         super().update(screen)
-        pygame.draw.circle(screen, colours.BLUE, self.position, 5)
-        if (cfg['debug_mode']):
+        if (cfg['debug_dog_states']):
+            if (self.state == 'driving'):
+                pygame.draw.circle(screen, colours.DRIVE, self.position, 5)
+            elif (self.state == 'collecting'):
+                pygame.draw.circle(screen, colours.COLLECT, self.position, 5)
+            else:
+                pygame.draw.circle(screen, colours.BLUE, self.position, 5)
+        else:
+            pygame.draw.circle(screen, colours.BLUE, self.position, 5)
+        if (cfg['debug_sub_flocks']):
             pygame.draw.circle(screen, colours.SRANGE[self.id], self.position, 4)
-    #end function
-
-    def calcCoM(self, vector_list):
-        super().calcCoM()
     #end function
 
     def empty_sub_flock(self):
@@ -100,13 +126,10 @@ class Dog(Agent):
         C = Agent.calcCoM(self, sheep_positions)
         W = steering_point
 
-        #print(self.position, C, W)
-
         R_C_D = (self.position - C) / np.linalg.norm(self.position - C)
         R_C_W = (W - C) / np.linalg.norm(W - C)
 
         dot = np.dot(R_C_D, R_C_W)
-        #print(R_C_D, R_C_W, dot)
         if (dot > 1):
             dot = 1
         theta_D_C_W = np.arccos(dot)
@@ -127,7 +150,7 @@ class Dog(Agent):
         F_W = R_D_W
         F_T = H_T * R_D_T
 
-        if (cfg['debug_mode']):
+        if (cfg['debug_dog_forces']):
             pygame.draw.line(screen, colours.GREEN, self.position, np.add(self.position, 10 * cfg['dog_repulsion_from_sheep'] * F_F), 8)
             pygame.draw.line(screen, colours.RED, self.position, np.add(self.position, 10 * cfg['dog_attraction_to_steering_point'] * F_W), 8)
             pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, 10 * cfg['dog_orbital_around_flock'] * F_T), 8)
