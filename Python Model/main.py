@@ -12,13 +12,13 @@ import random
 
 config_file_name = 'config.json'
 
-def calc_voronoi_partitioning(flock, herd):
-    for dog in herd:
+def calc_voronoi_partitioning(flock, pack):
+    for dog in pack:
         dog.empty_sub_flock()
 
     for sheep in flock:
         min_dist = 10000
-        for dog in herd:
+        for dog in pack:
             dist = np.linalg.norm(sheep.position - dog.position)
             if dist < min_dist:
                 min_dist = dist
@@ -32,10 +32,10 @@ def add_sheep(flock, position, cfg, flock_id):
     return flock_id + 1
 #end function
 
-def add_dog(herd, position, cfg, herd_id):
-    agent = Dog(position = position, id = herd_id, cfg = cfg)
-    herd.add(agent)
-    return herd_id + 1
+def add_dog(pack, position, cfg, pack_id):
+    agent = Dog(position = position, id = pack_id, cfg = cfg)
+    pack.add(agent)
+    return pack_id + 1
 #end function
 
 def main():
@@ -47,9 +47,9 @@ def main():
     pygame.init()
 
     screen = pygame.display.set_mode([cfg['screen_width'],cfg['screen_width']])
-    herd = pygame.sprite.Group()
+    pack = pygame.sprite.Group()
     flock = pygame.sprite.Group()
-    herd_id = 0
+    pack_id = 0
     flock_id = 0
 
     for i in range(0, cfg['no_of_sheep']):
@@ -61,30 +61,30 @@ def main():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if (event.button == 1 and len(herd) < cfg['max_number_of_dogs']):
-                    herd_id = add_dog(herd, np.array([event.pos[0], event.pos[1]]), cfg, herd_id)
+                if (event.button == 1 and len(pack) < cfg['max_number_of_dogs']):
+                    pack_id = add_dog(pack, np.array([event.pos[0], event.pos[1]]), cfg, pack_id)
                 elif event.button == 3:
-                    if (len(herd) > 0):
+                    if (len(pack) > 0):
                         closest_dog = None
-                        for dog in herd:
+                        for dog in pack:
                             if closest_dog == None:
                                 closest_dog = dog
                             else:
                                 if (np.linalg.norm(event.pos - dog.position) < np.linalg.norm(event.pos - closest_dog.position)):
                                     closest_dog = dog
-                        herd.remove(closest_dog)
+                        pack.remove(closest_dog)
 
 
         screen.fill(colours.GREY)
 
-        if (len(herd) > 0):
-            calc_voronoi_partitioning(flock, herd)
-            herd.update(screen, flock, herd, np.array([700, 700]), cfg)
+        if (len(pack) > 0):
+            calc_voronoi_partitioning(flock, pack)
+            pack.update(screen, flock, pack, np.array([700, 700]), cfg)
         else:
             for sheep in flock:
                 sheep.closest_dog = None
 
-        flock.update(screen, flock, herd, cfg)
+        flock.update(screen, flock, pack, cfg)
 
         pygame.display.flip()
         #pygame.display.update()

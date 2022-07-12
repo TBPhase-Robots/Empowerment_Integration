@@ -1,5 +1,3 @@
-from site import sethelper
-from turtle import fd
 import pygame
 import numpy as np
 import colours
@@ -24,7 +22,7 @@ class Dog(Agent):
         self.empowerment = 0
     #end function 
 
-    def update(self, screen, flock, herd, target, cfg):
+    def update(self, screen, flock, pack, target, cfg):
         if (len(self.sub_flock) > 0):
             sheep_positions = []
             for sheep in flock:
@@ -71,7 +69,7 @@ class Dog(Agent):
             self.steering_point = np.add(outer_flock_radius_point, 40 * ((C - target) / np.linalg.norm(C - target)))
 
         F_H = self.calc_F_H(screen, cfg, self.steering_point, flock)
-        F_D = self.calc_F_D(herd)
+        F_D = self.calc_F_D(pack)
         
         F = (cfg['dog_forces_with_flock'] * F_H) + (cfg['dog_repulsion_from_dogs'] * F_D)
 
@@ -89,7 +87,7 @@ class Dog(Agent):
         collision_check = True
         while (collision_check):
             collision_check = False
-            for dog in herd:
+            for dog in pack:
                 if (dog.id != self.id):
                     if (np.linalg.norm(self.position - dog.position) <= 8):
                         self.position = np.add(self.position, self.position - dog.position)
@@ -145,9 +143,9 @@ class Dog(Agent):
         self.sub_flock.add(sheep)
     #end function
 
-    def calc_F_D(self, herd):
+    def calc_F_D(self, pack):
         F_D_D = np.zeros(2)
-        for dog in herd:
+        for dog in pack:
             if (dog.id != self.id):
                 F_D_D = np.add(F_D_D, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
 

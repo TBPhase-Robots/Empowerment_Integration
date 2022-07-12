@@ -15,7 +15,7 @@ class Sheep(Agent):
         self.grazing_direction = np.array([1, 0])
     #end function
 
-    def update(self, screen, flock, herd, cfg):
+    def update(self, screen, flock, pack, cfg):
         if (self.closest_dog != None):
             if (np.linalg.norm(self.position - self.closest_dog.position) <= cfg['sheep_vision_range']):
                 self.grazing = False
@@ -34,7 +34,7 @@ class Sheep(Agent):
             if (random.random() < cfg['grazing_movement_chance']):
                 self.position = np.add(self.position, self.grazing_direction)
         else:
-            F_D = self.calc_F_D(herd, cfg)
+            F_D = self.calc_F_D(pack, cfg)
             F_S = self.calc_F_S(flock, cfg)
             F_G = self.cal_F_G(flock, cfg)
 
@@ -76,12 +76,9 @@ class Sheep(Agent):
         self.closest_dog = dog
     #end function
 
-    def set_do_stuff(self, bool):
-        self.do_stuff = bool
-
-    def calc_F_D(self, herd, cfg):
+    def calc_F_D(self, pack, cfg):
         sum = np.zeros(2)
-        for dog in herd:
+        for dog in pack:
             direction = self.position - dog.position
             magnitude = np.linalg.norm(direction)
             sum += (direction / magnitude) * math.exp(- cfg['lambda_D'] * magnitude)
