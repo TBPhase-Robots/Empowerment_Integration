@@ -1,4 +1,3 @@
-from cv2 import AgastFeatureDetector_NONMAX_SUPPRESSION
 import pygame
 import colours
 import sys
@@ -53,7 +52,7 @@ def main():
     herd_id = 0
     flock_id = 0
 
-    for i in range(0, 30):
+    for i in range(0, cfg['no_of_sheep']):
         flock_id = add_sheep(flock, np.array([random.uniform(cfg['screen_width'] / 2 - 200, cfg['screen_width'] / 2 + 200), random.uniform(cfg['screen_height'] / 2 - 200, cfg['screen_height'] / 2 + 200)]), cfg, flock_id)
 
     while True:

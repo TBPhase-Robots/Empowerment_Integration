@@ -9,8 +9,11 @@
     "debug_dog_states" : false,
 
     "show_empowerment" : true,
+    "empowerment_type" : 1,
 
-    "sheep_resulsion_from_dogs" : 20,
+    "no_of_sheep" : 30,
+
+    "sheep_resulsion_from_dogs" : 30,
     "sheep_repulsion_from_sheep" : 300,
     "sheep_attraction_to_sheep" : 1,
 
@@ -18,7 +21,7 @@
     "lambda_S" : 0.6,
     "lambda_G" : -1,
 
-    "no_of_sheep_in_social_group" : 2,
+    "no_of_sheep_in_social_group" : 3,
     "sheep_vision_range" : 40,
     "grazing_movement_chance" : 0.3,
 
