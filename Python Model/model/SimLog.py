@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 class AgentState:
     '''
@@ -220,6 +221,7 @@ class Logger:
             'user_log' : self.user_log,
             'meta_data' : self.meta
         }
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
         fileo = open(f'{file_name}.pkl', 'wb')
         pickle.dump(data, fileo)
         fileo.close()

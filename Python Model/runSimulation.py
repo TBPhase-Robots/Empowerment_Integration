@@ -8,15 +8,19 @@ from model.Sheep import Sheep
 import json
 from scipy.spatial import Voronoi, voronoi_plot_2d
 import matplotlib.pyplot as plt
-import random
+import math
 from model.SimLog import Logger
 from datetime import datetime
 import VideoRecorder
+import time
+import os
 
 RECORD_VIDEO = True
+INITIAL_PAUSE_TIME = 200
 
 log = Logger()
 ticks = 0
+log_path = os.path.join("Empowerment Results")
 
 def calc_voronoi_partitioning(flock, pack):
     for dog in pack:
@@ -50,14 +54,18 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
     with open(f"experiment_config_files/{config_name}.json") as json_file:
         cfg = json.load(json_file)
 
+    if ('show_empowerment' not in cfg):
+        cfg['show_empowerment'] = show_empowerment
+
     global screen
     log.initialise(sim_session_id, config_name, show_empowerment, use_task_weighted_empowerment)
 
     ticks = 0
+    end_game = False
 
     pygame.init()
 
-    screen = pygame.display.set_mode([cfg['screen_width'],cfg['screen_height']])
+    screen = pygame.display.set_mode([cfg['world_width'] + 80,cfg['world_height']])
     pack = pygame.sprite.Group()
     flock = pygame.sprite.Group()
     pack_id = 0
@@ -83,7 +91,8 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
         video.filename = filename
         video.startRecorder()
 
-    while (ticks < cfg['time_limit']):
+    while (ticks < cfg['time_limit'] and not end_game):
+        start_time = round(time.time() * 1000)
         if (ticks == 0):
             log.recordStartTime(datetime.now())
         for event in pygame.event.get():
@@ -108,10 +117,17 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
                                     closest_dog = dog
                         log.destroyAgentInLog('dog', closest_dog.id, closest_dog.position, plt.tick_params)
                         pack.remove(closest_dog)
-                        
 
+        screen.fill(colours.DGREY)
+        pygame.draw.rect(screen, colours.GREY, pygame.Rect(0, 0, cfg['world_width'], cfg['world_height']))
 
-        screen.fill(colours.GREY)
+        # Draw dogs in pen
+        for i in range(0, cfg['max_number_of_dogs'] - len(pack)):
+            pygame.draw.circle(screen, colours.BLACK, [cfg['world_width'] + 20 + ((i % 3) * 20), 20 + (math.floor(i / 3) * 20)], 7)
+            pygame.draw.circle(screen, colours.BLUE, [cfg['world_width'] + 20 + ((i % 3) * 20), 20 + (math.floor(i / 3) * 20)], 5)
+
+        # Draw target box
+        pygame.draw.rect(screen, colours.RED, pygame.Rect(cfg['target_position'][0] - 100, cfg['target_position'][1] - 100, 200, 200), 3)
 
         if (len(pack) > 0):
             calc_voronoi_partitioning(flock, pack)
@@ -125,7 +141,9 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
         pygame.display.flip()
         #pygame.display.update()
 
-        pygame.time.wait(0)
+        current_time = round(time.time() * 1000)
+        if (current_time - start_time < 10):
+            pygame.time.wait(10 - (current_time - start_time))
         ticks += 1
         log.logPopulationStates('dog', pack, ticks)
         log.logPopulationStates('sheep', flock, ticks)
@@ -139,8 +157,19 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
             frame = np.fliplr(frame)
             frame = np.rot90(frame)
             video.grabScreen(frame)
-
-    # TODO: END GAME
+        
+        inner_buffer = 30
+        left_bound = cfg['target_position'][0] - 100 + inner_buffer
+        right_bound = cfg['target_position'][0] + 100 - inner_buffer
+        top_bound = cfg['target_position'][1] - 100 + inner_buffer
+        bottom_bound = cfg['target_position'][1] + 100 - inner_buffer
+        sheep_within_target = 0
+        for sheep in flock:
+            if (sheep.position[0] > left_bound and sheep.position[0] < right_bound and sheep.position[1] > top_bound and sheep.position[1] < bottom_bound):
+                sheep_within_target += 1
+        
+        if (len(flock) == sheep_within_target):
+            end_game = True
     log.recordEndTime(datetime.now())
     
     if RECORD_VIDEO:
@@ -148,17 +177,17 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
     
     # Create a meaningful name for the log file if one isn't provided
     # NOTE: This code is identical to a block in run_simulation() in main.py
-    # if not log_file_name:
-    #     log_name = config_name
-    #     if show_empowerment:           
-    #         log_name = log_name + "_empshown"       
-    #     if use_task_weighted_empowerment:
-    #         log_name = log_name + "_taskweighted"
-    # else:
-    #     log_name = log_file_name
+    if not log_file_name:
+        log_name = config_name
+        if show_empowerment:           
+            log_name = log_name + "_empshown"       
+        if use_task_weighted_empowerment:
+            log_name = log_name + "_taskweighted"
+    else:
+        log_name = log_file_name
     
-    # # Save the log to disk
-    # gw.log.pickleLog(os.path.join(log_path, sim_session_id, "{}_simlog".format(log_name)))
+    # Save the log to disk
+    log.pickleLog(os.path.join(log_path, sim_session_id, "{}_simlog".format(log_name)))
 #end function
 
 if __name__ == '__main__':

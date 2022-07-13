@@ -52,7 +52,7 @@ class Dog(Agent):
             if (self.state == 'driving'):
                 self.steering_point = self.driving_point
             elif (self.state == 'collecting'):
-                self.steering_point = np.add(furthest_sheep_position, 20 * (furthest_sheep_position - C) / np.linalg.norm(furthest_sheep_position - C))
+                self.steering_point = np.add(furthest_sheep_position, cfg['collection_distance_from_target_sheep'] * (furthest_sheep_position - C) / np.linalg.norm(furthest_sheep_position - C))
         else:
             self.state = 'unassigned'
             sheep_positions = []
@@ -67,7 +67,7 @@ class Dog(Agent):
                         furthest_sheep_position = sheep.position
             
             outer_flock_radius_point = np.add(C, np.linalg.norm(C - furthest_sheep_position) * ((C - target) / np.linalg.norm(C - target)))
-            self.steering_point = np.add(outer_flock_radius_point, 40 * ((C - target) / np.linalg.norm(C - target)))
+            self.steering_point = np.add(outer_flock_radius_point, cfg['driving_distance_from_flock_radius'] * ((C - target) / np.linalg.norm(C - target)))
 
         F_H = self.calc_F_H(screen, cfg, self.steering_point, flock)
         F_D = self.calc_F_D(pack)

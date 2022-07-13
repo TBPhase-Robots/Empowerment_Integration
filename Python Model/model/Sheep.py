@@ -131,15 +131,18 @@ class Sheep(Agent):
         
         C_direction = C - self.position
         C_magnitude = np.linalg.norm(C_direction)
-        C_i_direction = C_i - self.position
-        C_i_magnitude = np.linalg.norm(C_i_direction)
-        C_i_prime_direction = C_i_prime - self.position
-        C_i_prime_magnitude = np.linalg.norm(C_i_prime_direction)
 
         if (cfg['lambda_G'] > 0):
+            C_i_direction = C_i - self.position
+            C_i_magnitude = np.linalg.norm(C_i_direction)
             F_G = (cfg['lambda_G'] * (C_i_direction / C_i_magnitude)) + ((1 - cfg['lambda_G']) * (C_direction / C_magnitude))
         else:
-            F_G = (-cfg['lambda_G'] * (C_i_prime_direction / C_i_prime_magnitude)) + ((1 + cfg['lambda_G']) * (C_direction / C_magnitude))
+            if (len(external_group_positions) > 0):
+                C_i_prime_direction = C_i_prime - self.position
+                C_i_prime_magnitude = np.linalg.norm(C_i_prime_direction)
+                F_G = (-cfg['lambda_G'] * (C_i_prime_direction / C_i_prime_magnitude)) + ((1 + cfg['lambda_G']) * (C_direction / C_magnitude))
+            else:
+                F_G = 0
 
         return F_G
     #end function
