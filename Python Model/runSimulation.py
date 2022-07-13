@@ -1,0 +1,165 @@
+import pygame
+import colours
+import sys
+from pygame.locals import *
+import numpy as np
+from model.Dog import Dog
+from model.Sheep import Sheep
+import json
+from scipy.spatial import Voronoi, voronoi_plot_2d
+import matplotlib.pyplot as plt
+import random
+from model.SimLog import Logger
+from datetime import datetime
+import VideoRecorder
+
+RECORD_VIDEO = True
+
+log = Logger()
+ticks = 0
+
+def calc_voronoi_partitioning(flock, pack):
+    for dog in pack:
+        dog.empty_sub_flock()
+
+    for sheep in flock:
+        min_dist = 10000
+        for dog in pack:
+            dist = np.linalg.norm(sheep.position - dog.position)
+            if dist < min_dist:
+                min_dist = dist
+                sheep.set_closest_dog(dog)
+        sheep.closest_dog.add_sheep_to_sub_flock(sheep)
+#end function
+
+def add_sheep(flock, position, cfg, flock_id):
+    agent = Sheep(position = position, id = flock_id, cfg = cfg)
+    flock.add(agent)
+    log.addNewAgentInLog('sheep', flock_id, position, ticks)
+    return flock_id + 1
+#end function
+
+def add_dog(pack, position, cfg, pack_id):
+    agent = Dog(position = position, id = pack_id, cfg = cfg)
+    pack.add(agent)
+    log.addNewAgentInLog('dog', pack_id, position, ticks)
+    return pack_id + 1
+#end function
+
+def main(config_name='experiment_config_files.config', show_empowerment=False, use_task_weighted_empowerment=False, passed_screen='', sim_session_id='000000T000000', log_file_name=''):
+    with open(f"experiment_config_files/{config_name}.json") as json_file:
+        cfg = json.load(json_file)
+
+    global screen
+    log.initialise(sim_session_id, config_name, show_empowerment, use_task_weighted_empowerment)
+
+    ticks = 0
+
+    pygame.init()
+
+    screen = pygame.display.set_mode([cfg['screen_width'],cfg['screen_height']])
+    pack = pygame.sprite.Group()
+    flock = pygame.sprite.Group()
+    pack_id = 0
+    flock_id = 99
+
+    for pos in cfg['initial_dog_positions']:
+        pack_id = add_dog(pack, np.array(pos), cfg, pack_id)
+
+    for pos in cfg['initial_sheep_positions']:
+        flock_id = add_sheep(flock, np.array(pos), cfg, flock_id)
+
+    log.logPopulationStates('dog', pack, ticks)
+    log.logPopulationStates('sheep', flock, ticks)
+    log.logPopulations([pack, flock], ticks)
+
+    if RECORD_VIDEO:
+        (screen_width,screen_height)= screen.get_size()
+        resolution = (screen_width, screen_height)
+        filename = "Recording3.avi"
+        video = VideoRecorder.VideoRecorder()
+        fps = 10
+        video.setConfig(filename, fps, resolution)
+        video.filename = filename
+        video.startRecorder()
+
+    while (ticks < cfg['time_limit']):
+        if (ticks == 0):
+            log.recordStartTime(datetime.now())
+        for event in pygame.event.get():
+            if event.type==QUIT:
+                if RECORD_VIDEO:
+                    video.stopRecorder()
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if (event.button == 1 and len(pack) < cfg['max_number_of_dogs']):
+                    log.user_log.addMouseClick(ticks, datetime.now(), "MB:DOWN:LEFT", event.pos)
+                    pack_id = add_dog(pack, np.array([event.pos[0], event.pos[1]]), cfg, pack_id)
+                elif event.button == 3:
+                    log.user_log.addMouseClick(ticks, datetime.now(), "MB:DOWN:RIGHT", event.pos)
+                    if (len(pack) > 0):
+                        closest_dog = None
+                        for dog in pack:
+                            if closest_dog == None:
+                                closest_dog = dog
+                            else:
+                                if (np.linalg.norm(event.pos - dog.position) < np.linalg.norm(event.pos - closest_dog.position)):
+                                    closest_dog = dog
+                        log.destroyAgentInLog('dog', closest_dog.id, closest_dog.position, plt.tick_params)
+                        pack.remove(closest_dog)
+                        
+
+
+        screen.fill(colours.GREY)
+
+        if (len(pack) > 0):
+            calc_voronoi_partitioning(flock, pack)
+            pack.update(screen, flock, pack, cfg)
+        else:
+            for sheep in flock:
+                sheep.closest_dog = None
+
+        flock.update(screen, flock, pack, cfg)
+
+        pygame.display.flip()
+        #pygame.display.update()
+
+        pygame.time.wait(0)
+        ticks += 1
+        log.logPopulationStates('dog', pack, ticks)
+        log.logPopulationStates('sheep', flock, ticks)
+        log.logPopulations([pack, flock], ticks)
+
+        if RECORD_VIDEO:
+            # Screenshot the current pygame screen
+            img = pygame.surfarray.array3d(screen)
+            # Convert the screenshot to a numpy array
+            frame = np.array(img)
+            frame = np.fliplr(frame)
+            frame = np.rot90(frame)
+            video.grabScreen(frame)
+
+    # TODO: END GAME
+    log.recordEndTime(datetime.now())
+    
+    if RECORD_VIDEO:
+       video.stopRecorder()
+    
+    # Create a meaningful name for the log file if one isn't provided
+    # NOTE: This code is identical to a block in run_simulation() in main.py
+    # if not log_file_name:
+    #     log_name = config_name
+    #     if show_empowerment:           
+    #         log_name = log_name + "_empshown"       
+    #     if use_task_weighted_empowerment:
+    #         log_name = log_name + "_taskweighted"
+    # else:
+    #     log_name = log_file_name
+    
+    # # Save the log to disk
+    # gw.log.pickleLog(os.path.join(log_path, sim_session_id, "{}_simlog".format(log_name)))
+#end function
+
+if __name__ == '__main__':
+    main()

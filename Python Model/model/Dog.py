@@ -22,7 +22,8 @@ class Dog(Agent):
         self.empowerment = 0
     #end function 
 
-    def update(self, screen, flock, pack, target, cfg):
+    def update(self, screen, flock, pack, cfg):
+        target = cfg['target_position']
         if (len(self.sub_flock) > 0):
             sheep_positions = []
             for sheep in flock:
@@ -31,7 +32,7 @@ class Dog(Agent):
             furthest_sheep_position = C
 
             if (self.choice_tick_count == 0):
-                self.driving_point = np.add(C, 40 * (C - target) / np.linalg.norm(C - target))
+                self.driving_point = np.add(C, 35 * (C - target) / np.linalg.norm(C - target))
                 for sheep in self.sub_flock:
                     if (np.linalg.norm(sheep.position - C) > np.linalg.norm(furthest_sheep_position - C)):
                         furthest_sheep_position = sheep.position

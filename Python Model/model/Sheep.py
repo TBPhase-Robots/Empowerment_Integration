@@ -29,14 +29,21 @@ class Sheep(Agent):
                 self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
 
         if (self.grazing):
-            F_S = self.calc_F_S(flock, cfg)
+            if (len(flock) > 1):
+                F_S = self.calc_F_S(flock, cfg)
+            else:
+                F_S = 0
             self.position = np.add(self.position, (cfg['sheep_repulsion_from_sheep'] * F_S))
             if (random.random() < cfg['grazing_movement_chance']):
                 self.position = np.add(self.position, self.grazing_direction)
         else:
             F_D = self.calc_F_D(pack, cfg)
-            F_S = self.calc_F_S(flock, cfg)
-            F_G = self.cal_F_G(flock, cfg)
+            if (len(flock) > 1):
+                F_S = self.calc_F_S(flock, cfg)
+                F_G = self.cal_F_G(flock, cfg)
+            else:
+                F_S = 0
+                F_G = 0
 
             F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 

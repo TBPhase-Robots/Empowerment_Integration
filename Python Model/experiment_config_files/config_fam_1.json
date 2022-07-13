@@ -1,17 +1,22 @@
 {
     "screen_width" : 800,
-    "screen_height" : 800,
+    "screen_height" : 600,
+    "time_limit" : 5000,
+
     "debug_dog_forces" : false,
     "debug_sheep_forces" : false,
     "debug_steering_points" : false,
     "debug_sub_flocks" : false,
     "debug_sheep_states" : false,
     "debug_dog_states" : false,
-
-    "show_empowerment" : true,
+    
+    "show_empowerment" : false,
     "empowerment_type" : 1,
 
-    "no_of_sheep" : 30,
+    "initial_sheep_positions" : [[400, 300]],
+    "initial_dog_positions" : [],
+
+    "target_position" : [700, 500],
 
     "sheep_resulsion_from_dogs" : 30,
     "sheep_repulsion_from_sheep" : 300,
