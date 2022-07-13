@@ -50,7 +50,7 @@ def add_dog(pack, position, cfg, pack_id):
     return pack_id + 1
 #end function
 
-def main(config_name='experiment_config_files.config', show_empowerment=False, use_task_weighted_empowerment=False, passed_screen='', sim_session_id='000000T000000', log_file_name=''):
+def main(config_name='experiment_config_files.config', show_empowerment=False, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
     with open(f"experiment_config_files/{config_name}.json") as json_file:
         cfg = json.load(json_file)
 
@@ -84,9 +84,9 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
     if RECORD_VIDEO:
         (screen_width,screen_height)= screen.get_size()
         resolution = (screen_width, screen_height)
-        filename = "Recording3.avi"
+        filename = f"{log_path}\{sim_session_id}\{config_name}_recording.avi"
         video = VideoRecorder.VideoRecorder()
-        fps = 10
+        fps = 30
         video.setConfig(filename, fps, resolution)
         video.filename = filename
         video.startRecorder()

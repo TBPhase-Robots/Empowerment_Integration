@@ -12,10 +12,10 @@
     
     "empowerment_type" : 1,
 
-    "initial_sheep_positions" : [[400, 300]],
-    "initial_dog_positions" : [[80, 80], [80, 140], [140, 80], [50, 50],[120, 30], [30, 120]],
+    "initial_sheep_positions" : [[200, 200], [220, 190], [190, 220], [230, 210], [210, 230]],
+    "initial_dog_positions" : [[100, 100]],
 
-    "target_position" : [700, 500],
+    "target_position" : [695, 495],
 
     "sheep_resulsion_from_dogs" : 30,
     "sheep_repulsion_from_sheep" : 1000,
@@ -26,7 +26,7 @@
     "lambda_G" : -1,
 
     "no_of_sheep_in_social_group" : 3,
-    "sheep_vision_range" : 30,
+    "sheep_vision_range" : 35,
     "grazing_movement_chance" : 0.3,
 
     "dog_forces_with_flock" : 1,
