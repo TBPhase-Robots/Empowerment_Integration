@@ -14,6 +14,7 @@ from datetime import datetime
 import VideoRecorder
 import time
 import os
+from ProtoInputHandler import ProtoInputHandler
 
 RECORD_VIDEO = True
 INITIAL_PAUSE_TIME = 200
@@ -37,14 +38,14 @@ def calc_voronoi_partitioning(flock, pack):
 #end function
 
 def add_sheep(flock, position, cfg, flock_id):
-    agent = Sheep(position = position, id = flock_id, cfg = cfg)
+    agent = Sheep(position = position, id = flock_id, cfg = cfg, rotation=0)
     flock.add(agent)
     log.addNewAgentInLog('sheep', flock_id, position, ticks)
     return flock_id + 1
 #end function
 
 def add_dog(pack, position, cfg, pack_id):
-    agent = Dog(position = position, id = pack_id, cfg = cfg)
+    agent = Dog(position = position, id = pack_id, cfg = cfg, rotation=0)
     pack.add(agent)
     log.addNewAgentInLog('dog', pack_id, position, ticks)
     return pack_id + 1
@@ -59,6 +60,7 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
 
     global screen
     log.initialise(sim_session_id, config_name, show_empowerment, use_task_weighted_empowerment)
+    protoInputHandler = ProtoInputHandler(0, 99)
 
     ticks = 0
     end_game = False
@@ -141,6 +143,23 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
         pygame.display.flip()
         #pygame.display.update()
 
+        protoInputHandler.LoadAgentTransforms(pack, flock)
+        protoInputHandler.RandomiseAgentTransforms(0)
+        dogTransforms = protoInputHandler.GetAgentTransforms()
+
+        # transform defined by ID, position(x,y), rotation
+        for transform in dogTransforms:
+            id = transform[0]
+            position = transform[1]
+            x = position[0]
+            y = position[1]
+            rotation = transform[2]
+            for dog in pack:
+                if(dog.id == id):
+                    dog.position[0] = x
+                    dog.position[1] = y
+                    
+
         current_time = round(time.time() * 1000)
         if (current_time - start_time < 10):
             pygame.time.wait(10 - (current_time - start_time))
@@ -192,25 +211,7 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
 
 if __name__ == '__main__':
     main()
-        protoInputHandler.LoadAgentTransforms(pack, flock)
-        protoInputHandler.RandomiseAgentTransforms(0)
-        dogTransforms = protoInputHandler.GetAgentTransforms()
-            rotation = transform[2]
-            y = position[1]
-            x = position[0]
-            position = transform[1]
-            id = transform[0]
-            # transform defined by ID, position(x,y), rotation
-        for transform in dogTransforms:
+        
 
 
 
-                    dog.position[1] = y
-                    dog.position[0] = x
-                if(dog.id == id):
-            for dog in pack:
-            # get dog with relevant ID
-
-
-
-from ProtoInputHandler import ProtoInputHandler
