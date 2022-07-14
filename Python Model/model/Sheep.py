@@ -47,6 +47,9 @@ class Sheep(Agent):
 
             F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 
+            if (np.linalg.norm(self.position - np.add(self.position, F)) > 10):
+                print(self.position, np.linalg.norm(self.position - np.add(self.position, F)), F, cfg['sheep_resulsion_from_dogs'] *F_D, cfg['sheep_repulsion_from_sheep'] *F_S, cfg['sheep_attraction_to_sheep'] *F_G)
+
             self.position = np.add(self.position, F)
 
             if (cfg['debug_sheep_forces']):
