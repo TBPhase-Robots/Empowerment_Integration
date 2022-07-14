@@ -1,3 +1,4 @@
+from logging import root
 import pygame
 import numpy as np
 import colours
@@ -5,13 +6,14 @@ import sys
 from model.Agent import Agent
 import random
 import math
-
+from math import degrees, atan2
 from model.Sheep import Sheep
 
+import numpy.linalg as LA
 class Dog(Agent):
 
-    def __init__(self, position, id, cfg) -> None:
-        super().__init__(position, id, cfg)
+    def __init__(self, position, id, cfg, rotation) -> None:
+        super().__init__(position, id, cfg, rotation)
         self.sub_flock = pygame.sprite.Group()
         self.direction = np.array([1, 0])
         self.choice_tick_count = 0
@@ -20,7 +22,35 @@ class Dog(Agent):
         self.state = 'collecting'
         self.steering_point = np.zeros(2)
         self.empowerment = 0
+        self.rotation = rotation
     #end function 
+
+
+    # a and b must be np arrays
+    def CalcAngleBetweenVectors(self, a, b):
+        # NORMALISE A AND B
+        a = a / np.linalg.norm(a)
+        b = b / np.linalg.norm(b)
+        dot = np.dot(a, b)
+        if (dot > 1):
+            dot = 1
+        theta = np.arccos(dot)
+        if ((np.cross([a[0], a[1], 0], [b[0], b[1], 0])[2] > 0)   ):
+            theta = - theta
+        return math.degrees(theta)
+
+            
+
+
+    def CalcBearing(x, y, center_x, center_y):
+        angle = degrees(atan2(y - center_y, x - center_x))
+        bearing1 = (angle + 360) % 360
+        bearing2 = (90 - angle) % 360
+        return bearing1, bearing2
+    #end function 
+
+
+
 
     def update(self, screen, flock, pack, target, cfg):
         if (len(self.sub_flock) > 0):
@@ -78,7 +108,45 @@ class Dog(Agent):
         if (cfg['debug_steering_points']):
             pygame.draw.circle(screen, colours.BLACK, self.steering_point, 4)
 
-        self.position = np.add(self.position, F)
+
+        # calculate forward vector
+        forwardX = math.sin(self.rotation)
+        forwardY = math.cos(self.rotation)
+
+        if(cfg['realistic_agent_movement_markers']):
+            # black line is target rotation
+            pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array(F)*10) ,8)
+            # draw line in forward vector
+            pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, np.array([forwardX, -forwardY])*80) ,5)
+
+        # calculate angle between current dir and target dir:
+        angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), np.array(F))
+
+        # F is the movement vector for this frame.
+
+        # Unrealistic movement
+        if(not cfg['realistic_agent_movement']):
+            self.position = np.add(self.position, F)
+        # Realistic movement
+        else:
+            # differential drive rotation towards target direction
+
+            # rotate until forward vector is parallel to force within reason
+
+            # if vector is parallel, then go forward
+            if(angle > 5):
+                self.rotation -= 0.1
+                self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+            elif(angle < -5):
+                self.rotation += 0.1
+                self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+            else:
+                self.position = np.add(self.position, F/2)
+
+            # at this point, we would attempt to transmit this agent's movement command to the bot via ROS
+            
+            # we should transmit the current position, current rotation, target position. 
+            # The robot will attempt to drive to the position, then keep going
 
         self.choice_tick_count += 1
         if (self.choice_tick_count >= cfg['ticks_per_choice']):

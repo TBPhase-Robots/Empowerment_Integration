@@ -9,9 +9,13 @@
     "debug_dog_states" : false,
 
     "show_empowerment" : true,
+    "realistic_agent_movement" : true,
+    "realistic_agent_movement_markers" : true,
     "empowerment_type" : 1,
 
     "no_of_sheep" : 30,
+    "sheep_id_start" : 99,
+    "dog_id_start" : 0,
 
     "sheep_resulsion_from_dogs" : 30,
     "sheep_repulsion_from_sheep" : 300,

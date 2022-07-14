@@ -3,15 +3,17 @@ import colours
 import numpy as np
 
 class Agent(pygame.sprite.Sprite):
-    def __init__(self, position, id, cfg) -> None:
+    def __init__(self, position, id, cfg, rotation) -> None:
         pygame.sprite.Sprite.__init__(self)
         self.position = position
         self.id = id
         self.cfg = cfg
+        self.rotation = rotation
     #end function
 
     def update(self, screen):
         pygame.draw.circle(screen, colours.BLACK, self.position, 7)
+        
     #end function
 
     def calcCoM(self, vector_list):

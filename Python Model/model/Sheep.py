@@ -8,14 +8,41 @@ import random
 
 class Sheep(Agent):
 
-    def __init__(self, position, id, cfg) -> None:
-        super().__init__(position, id, cfg)
+    def __init__(self, position, id, cfg, rotation) -> None:
+        super().__init__(position, id, cfg, rotation)
         self.closest_dog = None
         self.grazing = True
         self.grazing_direction = np.array([1, 0])
+        self.rotation = rotation
     #end function
 
+
+        # a and b must be np arrays
+    def CalcAngleBetweenVectors(self, a, b):
+        # NORMALISE A AND B
+        a = a / np.linalg.norm(a)
+        b = b / np.linalg.norm(b)
+        dot = np.dot(a, b)
+        if (dot > 1):
+            dot = 1
+        theta = np.arccos(dot)
+        if ((np.cross([a[0], a[1], 0], [b[0], b[1], 0])[2] > 0)   ):
+            theta = - theta
+        return math.degrees(theta)
+
+
+
     def update(self, screen, flock, pack, cfg):
+
+        # calculate forward vector
+        forwardX = math.sin(self.rotation)
+        forwardY = math.cos(self.rotation)
+
+
+
+        
+
+        
         if (self.closest_dog != None):
             if (np.linalg.norm(self.position - self.closest_dog.position) <= cfg['sheep_vision_range']):
                 self.grazing = False
@@ -28,11 +55,31 @@ class Sheep(Agent):
             if (random.random() < 0.05):
                 self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
 
+
         if (self.grazing):
             F_S = self.calc_F_S(flock, cfg)
             self.position = np.add(self.position, (cfg['sheep_repulsion_from_sheep'] * F_S))
+
+            angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), self.grazing_direction)
+            if(cfg['realistic_agent_movement_markers']):
+                # black line is target rotation
+                pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, self.grazing_direction*5) ,8)
+                # draw line in forward vector
+                pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, np.array([forwardX, -forwardY])*30) ,5)
+
             if (random.random() < cfg['grazing_movement_chance']):
-                self.position = np.add(self.position, self.grazing_direction)
+                if(not cfg['realistic_agent_movement']):
+                    self.position = np.add(self.position, self.grazing_direction)
+                else:
+                    if(angle > 10):
+                        self.rotation -= 0.4
+                        self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+                    elif(angle < -10):
+                        self.rotation += 0.4
+                        self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+                    else:
+                        self.position = np.add(self.position, self.grazing_direction)
+                    
         else:
             F_D = self.calc_F_D(pack, cfg)
             F_S = self.calc_F_S(flock, cfg)
@@ -40,7 +87,25 @@ class Sheep(Agent):
 
             F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 
-            self.position = np.add(self.position, F)
+            angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), np.array(F))
+            if(cfg['realistic_agent_movement_markers']):
+                # black line is target rotation
+                pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, self.grazing_direction*8) ,8)
+                # draw line in forward vector
+                pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, np.array([forwardX, -forwardY])*40) ,5)
+
+
+            if(not cfg['realistic_agent_movement']):
+                self.position = np.add(self.position, F)
+            else:
+                if(angle > 10):
+                    self.rotation -= 0.2
+                    self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+                elif(angle < -10):
+                    self.rotation += 0.2
+                    self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+                else:
+                    self.position = np.add(self.position, np.array(F))
 
             if (cfg['debug_sheep_forces']):
                 pygame.draw.line(screen, colours.ORANGE, self.position, np.add(self.position, 10 * cfg['sheep_resulsion_from_dogs'] * F_D), 8)
@@ -60,6 +125,7 @@ class Sheep(Agent):
         if (cfg['debug_sheep_states']):
             if (self.grazing):
                 pygame.draw.circle(screen, colours.GRAZE, self.position, 5)
+                
             else:
                 pygame.draw.circle(screen, colours.HERD, self.position, 5)
         else:
