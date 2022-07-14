@@ -52,7 +52,8 @@ class Dog(Agent):
 
 
 
-    def update(self, screen, flock, pack, target, cfg):
+    def update(self, screen, flock, pack, cfg):
+        target = cfg['target_position']
         if (len(self.sub_flock) > 0):
             sheep_positions = []
             for sheep in flock:
@@ -61,7 +62,7 @@ class Dog(Agent):
             furthest_sheep_position = C
 
             if (self.choice_tick_count == 0):
-                self.driving_point = np.add(C, 40 * (C - target) / np.linalg.norm(C - target))
+                self.driving_point = np.add(C, cfg['driving_distance_from_flock_radius'] * (C - target) / np.linalg.norm(C - target))
                 for sheep in self.sub_flock:
                     if (np.linalg.norm(sheep.position - C) > np.linalg.norm(furthest_sheep_position - C)):
                         furthest_sheep_position = sheep.position
@@ -81,7 +82,7 @@ class Dog(Agent):
             if (self.state == 'driving'):
                 self.steering_point = self.driving_point
             elif (self.state == 'collecting'):
-                self.steering_point = np.add(furthest_sheep_position, 20 * (furthest_sheep_position - C) / np.linalg.norm(furthest_sheep_position - C))
+                self.steering_point = np.add(furthest_sheep_position, cfg['collection_distance_from_target_sheep'] * (furthest_sheep_position - C) / np.linalg.norm(furthest_sheep_position - C))
         else:
             self.state = 'unassigned'
             sheep_positions = []
@@ -96,7 +97,7 @@ class Dog(Agent):
                         furthest_sheep_position = sheep.position
             
             outer_flock_radius_point = np.add(C, np.linalg.norm(C - furthest_sheep_position) * ((C - target) / np.linalg.norm(C - target)))
-            self.steering_point = np.add(outer_flock_radius_point, 40 * ((C - target) / np.linalg.norm(C - target)))
+            self.steering_point = np.add(outer_flock_radius_point, cfg['driving_distance_from_flock_radius'] * ((C - target) / np.linalg.norm(C - target)))
 
         F_H = self.calc_F_H(screen, cfg, self.steering_point, flock)
         F_D = self.calc_F_D(pack)
@@ -160,6 +161,12 @@ class Dog(Agent):
                     if (np.linalg.norm(self.position - dog.position) <= 8):
                         self.position = np.add(self.position, self.position - dog.position)
                         collision_check = True
+        
+        if (self.position[0] > cfg['world_width'] - 10): self.position[0] = cfg['world_width'] - 10
+        elif (self.position[0] < 10): self.position[0] = 10
+
+        if (self.position[1] > cfg['world_height'] - 10): self.position[1] = cfg['world_height'] - 10
+        elif (self.position[1] < 10): self.position[1] = 10
 
         if (cfg['empowerment_type'] == 0):
             self.empowerment = len(self.sub_flock)
@@ -170,7 +177,7 @@ class Dog(Agent):
                 self.empowerment = 0
             for sheep in flock:
                 if (np.linalg.norm(self.position - sheep.position) <= 50):
-                    self.empowerment += 5
+                    self.empowerment += 5 - math.floor(np.linalg.norm(self.position - sheep.position) / 10)
 
         super().update(screen)
         if (cfg['debug_dog_states']):
@@ -215,7 +222,8 @@ class Dog(Agent):
         F_D_D = np.zeros(2)
         for dog in pack:
             if (dog.id != self.id):
-                F_D_D = np.add(F_D_D, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
+                if (np.array_equal(self.position, dog.position)):
+                    F_D_D = np.add(F_D_D, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
 
         F_D = F_D_D + (0.75 * np.array([F_D_D[1], -F_D_D[0]]))
         return F_D

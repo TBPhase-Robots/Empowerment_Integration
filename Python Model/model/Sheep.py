@@ -48,16 +48,19 @@ class Sheep(Agent):
                 self.grazing = False
             else:
                 if (random.random() < 0.05):
-                    self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+                    self.grazing_direction = np.array([random.uniform(-3, 3), random.uniform(-3, 3)])
                 self.grazing = True
         else:
             self.grazing = True
             if (random.random() < 0.05):
-                self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+                self.grazing_direction = np.array([random.uniform(-3, 3), random.uniform(-3, 3)])
 
 
         if (self.grazing):
-            F_S = self.calc_F_S(flock, cfg)
+            if (len(flock) > 1):
+                F_S = self.calc_F_S(flock, cfg)
+            else:
+                F_S = 0
             self.position = np.add(self.position, (cfg['sheep_repulsion_from_sheep'] * F_S))
 
             angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), self.grazing_direction)
@@ -82,8 +85,12 @@ class Sheep(Agent):
                     
         else:
             F_D = self.calc_F_D(pack, cfg)
-            F_S = self.calc_F_S(flock, cfg)
-            F_G = self.cal_F_G(flock, cfg)
+            if (len(flock) > 1):
+                F_S = self.calc_F_S(flock, cfg)
+                F_G = self.cal_F_G(flock, cfg)
+            else:
+                F_S = 0
+                F_G = 0
 
             F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 
@@ -121,6 +128,12 @@ class Sheep(Agent):
                         self.position = np.add(self.position, self.position - sheep.position)
                         collision_check = True
 
+        if (self.position[0] > cfg['world_width'] - 10): self.position[0] = cfg['world_width'] - 10
+        elif (self.position[0] < 10): self.position[0] = 10
+
+        if (self.position[1] > cfg['world_height'] - 10): self.position[1] = cfg['world_height'] - 10
+        elif (self.position[1] < 10): self.position[1] = 15
+
         super().update(screen)
         if (cfg['debug_sheep_states']):
             if (self.grazing):
@@ -147,7 +160,8 @@ class Sheep(Agent):
         for dog in pack:
             direction = self.position - dog.position
             magnitude = np.linalg.norm(direction)
-            sum += (direction / magnitude) * math.exp(- cfg['lambda_D'] * magnitude)
+            if (magnitude != 0):
+                sum += (direction / magnitude) * math.exp(- cfg['lambda_D'] * magnitude)
         return sum
     #end function
 
@@ -157,7 +171,8 @@ class Sheep(Agent):
             if (sheep.id != self.id):  
                 direction = self.position - sheep.position
                 magnitude = np.linalg.norm(direction)
-                sum += (direction / magnitude) * math.exp(- cfg['lambda_S'] * magnitude)
+                if (magnitude != 0):
+                    sum += (direction / magnitude) * math.exp(- cfg['lambda_S'] * magnitude)
         return sum
     #end function
 
@@ -190,15 +205,18 @@ class Sheep(Agent):
         
         C_direction = C - self.position
         C_magnitude = np.linalg.norm(C_direction)
-        C_i_direction = C_i - self.position
-        C_i_magnitude = np.linalg.norm(C_i_direction)
-        C_i_prime_direction = C_i_prime - self.position
-        C_i_prime_magnitude = np.linalg.norm(C_i_prime_direction)
 
         if (cfg['lambda_G'] > 0):
+            C_i_direction = C_i - self.position
+            C_i_magnitude = np.linalg.norm(C_i_direction)
             F_G = (cfg['lambda_G'] * (C_i_direction / C_i_magnitude)) + ((1 - cfg['lambda_G']) * (C_direction / C_magnitude))
         else:
-            F_G = (-cfg['lambda_G'] * (C_i_prime_direction / C_i_prime_magnitude)) + ((1 + cfg['lambda_G']) * (C_direction / C_magnitude))
+            if (len(external_group_positions) > 0):
+                C_i_prime_direction = C_i_prime - self.position
+                C_i_prime_magnitude = np.linalg.norm(C_i_prime_direction)
+                F_G = (-cfg['lambda_G'] * (C_i_prime_direction / C_i_prime_magnitude)) + ((1 + cfg['lambda_G']) * (C_direction / C_magnitude))
+            else:
+                F_G = 0
 
         return F_G
     #end function
