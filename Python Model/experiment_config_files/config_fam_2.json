@@ -18,7 +18,7 @@
     "target_position" : [700, 500],
 
     "sheep_resulsion_from_dogs" : 30,
-    "sheep_repulsion_from_sheep" : 1000,
+    "sheep_repulsion_from_sheep" : 300,
     "sheep_attraction_to_sheep" : 1,
 
     "lambda_D" : 0.1,   

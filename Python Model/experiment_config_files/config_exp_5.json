@@ -4,7 +4,7 @@
     "time_limit" : 5000,
 
     "debug_dog_forces" : false,
-    "debug_sheep_forces" : true,
+    "debug_sheep_forces" : false,
     "debug_steering_points" : false,
     "debug_sub_flocks" : false,
     "debug_sheep_states" : false,
@@ -18,7 +18,7 @@
     "target_position" : [695, 495],
 
     "sheep_resulsion_from_dogs" : 30,
-    "sheep_repulsion_from_sheep" : 30000,
+    "sheep_repulsion_from_sheep" : 300,
     "sheep_attraction_to_sheep" : 1,
 
     "lambda_D" : 0.1,   
