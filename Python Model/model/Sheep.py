@@ -47,9 +47,6 @@ class Sheep(Agent):
 
             F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 
-            if (np.linalg.norm(self.position - np.add(self.position, F)) > 10):
-                print(self.position, np.linalg.norm(self.position - np.add(self.position, F)), F, cfg['sheep_resulsion_from_dogs'] *F_D, cfg['sheep_repulsion_from_sheep'] *F_S, cfg['sheep_attraction_to_sheep'] *F_G)
-
             self.position = np.add(self.position, F)
 
             if (cfg['debug_sheep_forces']):
@@ -65,6 +62,12 @@ class Sheep(Agent):
                     if (np.linalg.norm(self.position - sheep.position) <= 8):
                         self.position = np.add(self.position, self.position - sheep.position)
                         collision_check = True
+
+        if (self.position[0] > cfg['world_width'] - 10): self.position[0] = cfg['world_width'] - 10
+        elif (self.position[0] < 10): self.position[0] = 10
+
+        if (self.position[1] > cfg['world_height'] - 10): self.position[1] = cfg['world_height'] - 10
+        elif (self.position[1] < 10): self.position[1] = 15
 
         super().update(screen)
         if (cfg['debug_sheep_states']):

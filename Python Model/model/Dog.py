@@ -93,6 +93,12 @@ class Dog(Agent):
                     if (np.linalg.norm(self.position - dog.position) <= 8):
                         self.position = np.add(self.position, self.position - dog.position)
                         collision_check = True
+        
+        if (self.position[0] > cfg['world_width'] - 10): self.position[0] = cfg['world_width'] - 10
+        elif (self.position[0] < 10): self.position[0] = 10
+
+        if (self.position[1] > cfg['world_height'] - 10): self.position[1] = cfg['world_height'] - 10
+        elif (self.position[1] < 10): self.position[1] = 10
 
         if (cfg['empowerment_type'] == 0):
             self.empowerment = len(self.sub_flock)
