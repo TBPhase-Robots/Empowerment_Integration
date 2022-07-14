@@ -41,7 +41,7 @@ import sys
 # -----------------DIRECTORIES, PATHS AND CONFIGURATIONS-----------------------
 # Set the configuration and results directories folders
 CONFIG_DIR = "experiment_config_files/"
-RESULTS_DIR = os.path.join(os.path.expanduser('~'), "OneDrive - University of Bristol", "Empowerment Results")
+RESULTS_DIR = "C:\\Users\\matth\\Documents\\Empowerment_Integration\\Python Model\\Empowerment Results"
 
 # Credentials needed to log to a google sheet
 #   This function was removed at the beta stage

@@ -3,7 +3,7 @@
     "world_height" : 600,
     "time_limit" : 5000,
 
-    "debug_dog_forces" : true,
+    "debug_dog_forces" : false,
     "debug_sheep_forces" : false,
     "debug_steering_points" : false,
     "debug_sub_flocks" : false,
