@@ -21,12 +21,12 @@ class Sheep(Agent):
                 self.grazing = False
             else:
                 if (random.random() < 0.05):
-                    self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+                    self.grazing_direction = np.array([random.uniform(-3, 3), random.uniform(-3, 3)])
                 self.grazing = True
         else:
             self.grazing = True
             if (random.random() < 0.05):
-                self.grazing_direction = np.array([random.uniform(-1, 1), random.uniform(-1, 1)])
+                self.grazing_direction = np.array([random.uniform(-3, 3), random.uniform(-3, 3)])
 
         if (self.grazing):
             if (len(flock) > 1):
@@ -94,7 +94,8 @@ class Sheep(Agent):
         for dog in pack:
             direction = self.position - dog.position
             magnitude = np.linalg.norm(direction)
-            sum += (direction / magnitude) * math.exp(- cfg['lambda_D'] * magnitude)
+            if (magnitude != 0):
+                sum += (direction / magnitude) * math.exp(- cfg['lambda_D'] * magnitude)
         return sum
     #end function
 
@@ -104,7 +105,8 @@ class Sheep(Agent):
             if (sheep.id != self.id):  
                 direction = self.position - sheep.position
                 magnitude = np.linalg.norm(direction)
-                sum += (direction / magnitude) * math.exp(- cfg['lambda_S'] * magnitude)
+                if (magnitude != 0):
+                    sum += (direction / magnitude) * math.exp(- cfg['lambda_S'] * magnitude)
         return sum
     #end function
 

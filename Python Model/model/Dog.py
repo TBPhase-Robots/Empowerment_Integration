@@ -109,7 +109,7 @@ class Dog(Agent):
                 self.empowerment = 0
             for sheep in flock:
                 if (np.linalg.norm(self.position - sheep.position) <= 50):
-                    self.empowerment += 5
+                    self.empowerment += 5 - math.floor(np.linalg.norm(self.position - sheep.position) / 10)
 
         super().update(screen)
         if (cfg['debug_dog_states']):
@@ -154,7 +154,8 @@ class Dog(Agent):
         F_D_D = np.zeros(2)
         for dog in pack:
             if (dog.id != self.id):
-                F_D_D = np.add(F_D_D, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
+                if (np.array_equal(self.position, dog.position)):
+                    F_D_D = np.add(F_D_D, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
 
         F_D = F_D_D + (0.75 * np.array([F_D_D[1], -F_D_D[0]]))
         return F_D
