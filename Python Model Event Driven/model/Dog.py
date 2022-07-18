@@ -10,10 +10,38 @@ from math import degrees, atan2
 from model.Sheep import Sheep
 
 import numpy.linalg as LA
+
+
+import rclpy
+from rclpy.executors import ExternalShutdownException
+from rclpy.node import Node
+
+from std_msgs.msg import String
+
+from model.Listener import Listener
+
+from geometry_msgs.msg import Pose
+
 class Dog(Agent):
 
-    def __init__(self, position, id, cfg, rotation) -> None:
-        super().__init__(position, id, cfg, rotation)
+    # the agent callback is responsible for updating the pose of the agent, then alerting the controller
+    def AgentCallback(self, msg):
+        # decode position and rotation data, set agent position and rotation
+        newPose = msg
+        self.position[0] = newPose.position.x
+        self.position[1] = newPose.position.y
+        self.rotation = newPose.orientation.z
+        
+        self.callback(msg)
+
+    # call this function from central poller
+    def RosUpdate(self):
+        rclpy.spin_once(self.listener, timeout_sec=0)
+
+
+    def __init__(self, position, id, cfg, rotation, callback) -> None:
+        super().__init__(position, id, cfg, rotation, callback)
+        
         self.sub_flock = pygame.sprite.Group()
         self.direction = np.array([1, 0])
         self.choice_tick_count = 0
@@ -23,7 +51,20 @@ class Dog(Agent):
         self.steering_point = np.zeros(2)
         self.empowerment = 0
         self.rotation = rotation
-    #end function 
+        self.callback = callback
+        topicString = "/robot" + str(self.id) + "/pose"
+
+        
+        self.listener = Listener(topicString, self.AgentCallback) 
+        
+
+
+        
+
+    #end function
+
+
+
 
 
     # a and b must be np arrays
@@ -39,7 +80,7 @@ class Dog(Agent):
             theta = - theta
         return math.degrees(theta)
 
-            
+   
 
 
     def CalcBearing(x, y, center_x, center_y):
@@ -52,7 +93,9 @@ class Dog(Agent):
 
 
 
-    def update(self, screen, flock, pack, cfg):
+
+
+    def SimulationUpdate(self, screen, flock, pack, cfg):
         target = cfg['target_position']
         if (len(self.sub_flock) > 0):
             sheep_positions = []
