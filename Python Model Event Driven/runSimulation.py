@@ -3,8 +3,7 @@ import colours
 import sys
 from pygame.locals import *
 import numpy as np
-from model.Dog import Dog
-from model.Sheep import Sheep
+from model.Agent import Agent
 import json
 from scipy.spatial import Voronoi, voronoi_plot_2d
 import matplotlib.pyplot as plt
@@ -15,8 +14,8 @@ from datetime import datetime
 import time
 import os
 from ProtoInputHandler import ProtoInputHandler
-
-
+from model.Listener import Listener
+from model.CommandListener import CommandListener
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -24,6 +23,10 @@ from rclpy.node import Node
 
 def ControllerCallback(data):
     print("topic contents:")
+    print(data)
+
+def CommandListenerCallback(data):
+    print("CommandListenerData:")
     print(data)
 
 def calc_voronoi_partitioning(flock, pack):
@@ -41,14 +44,14 @@ def calc_voronoi_partitioning(flock, pack):
 #end function
 
 def add_sheep(flock, agents, position, cfg, flock_id):
-    agent = Sheep(position = position, id = flock_id, cfg = cfg, rotation=0, callback=ControllerCallback)
+    agent = Agent(position = position, id = flock_id, cfg = cfg, rotation=0, callback=ControllerCallback)
     flock.add(agent)
     agents.add(agent)
     return flock_id + 1
 #end function
 
 def add_dog(pack, agents, position, cfg, pack_id):
-    agent = Dog(position = position, id = pack_id, cfg = cfg, rotation=0, callback=ControllerCallback)
+    agent = Agent(position = position, id = pack_id, cfg = cfg, rotation=0, callback=ControllerCallback)
     pack.add(agent)
     agents.add(agent)
 
@@ -58,32 +61,34 @@ def add_dog(pack, agents, position, cfg, pack_id):
 
 
 def DrawWorld(cfg):
-    #protoInputHandler = ProtoInputHandler(0, 99)
-
     screen.fill(colours.DGREY)
     pygame.draw.rect(screen, colours.GREY, pygame.Rect(0, 0, cfg['world_width'], cfg['world_height']))
-
     # Draw target box
     pygame.draw.rect(screen, colours.RED, pygame.Rect(cfg['target_position'][0] - 100, cfg['target_position'][1] - 100, 200, 200), 3)
-
-
-
     pygame.display.flip()
-    #pygame.display.update()
+
 
 # calls standard behaviour on all sheep and dog agents for simulation
 def ExperimentUpdateTimestep(pack, flock, cfg):
 
+
     if (len(pack) > 0):
         calc_voronoi_partitioning(flock, pack)
-        pack.SimulationUpdate(screen, flock, pack, cfg)
+        for dog in pack:
+            dog.SimulationUpdate_Dog(screen, flock, pack, cfg)
+        
     else:
         for sheep in flock:
             sheep.closest_dog = None
 
-    flock.SimulationUpdate(screen, flock, pack, cfg)                  
+    if(len(flock) > 0):
+        for sheep in flock:
 
-       
+            sheep.SimulationUpdate_Sheep(screen, flock, pack, cfg)                  
+
+
+
+
 
 def main(config_name='defaultConfig', show_empowerment=False):
 
@@ -106,20 +111,29 @@ def main(config_name='defaultConfig', show_empowerment=False):
     pack = pygame.sprite.Group()
     flock = pygame.sprite.Group()
     agents = pygame.sprite.Group()
-    pack_id = 0
-    flock_id = 99
+    agent_id = 0
+
+
+    commandListenerTopicName = "/controller/command"
+    # define the state command listener:
+    commandListener = CommandListener(commandListenerTopicName, CommandListenerCallback) 
+
 
     for pos in cfg['initial_dog_positions']:
-        pack_id = add_dog(pack, agents, np.array(pos), cfg, pack_id)
+        agent_id = add_dog(pack, agents, np.array(pos), cfg, agent_id)
 
     for pos in cfg['initial_sheep_positions']:
-        flock_id = add_sheep(flock, agents, np.array(pos), cfg, flock_id)
+        agent_id = add_sheep(flock, agents, np.array(pos), cfg, agent_id)
 
     
     state = "park"
     
     
     while (not end_game):
+
+        pygame.display.update()
+        time.sleep(0.01)
+
 
         # polls ROS topics for dogs, sheep, unnassigned for poses
         for dog in pack:
@@ -128,15 +142,17 @@ def main(config_name='defaultConfig', show_empowerment=False):
         for sheep in flock:
             sheep.RosUpdate()
 
+
+        rclpy.spin_once(commandListener, timeout_sec=0.01)
+
+
         # draw world 
         DrawWorld(cfg=cfg)
 
-        # send all agents to park
-        if(state == "park"):
-            ExperimentUpdateTimestep(pack = pack, flock=flock, cfg=cfg)
 
-        if(state == "experiment"):
-            ExperimentUpdateTimestep(pack = pack, flock=flock, cfg=cfg)
+        ExperimentUpdateTimestep(pack = pack, flock=flock, cfg=cfg)
+
+            
     
 
         
@@ -161,7 +177,6 @@ def main(config_name='defaultConfig', show_empowerment=False):
                         pack.remove(closest_dog)
 
         
-        time.sleep(0.01)
 
         
 

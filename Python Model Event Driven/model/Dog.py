@@ -42,17 +42,26 @@ class Dog(Agent):
     def __init__(self, position, id, cfg, rotation, callback) -> None:
         super().__init__(position, id, cfg, rotation, callback)
         
-        self.sub_flock = pygame.sprite.Group()
+        # generic
         self.direction = np.array([1, 0])
+        self.rotation = rotation
+        self.callback = callback
+        topicString = "/robot" + str(self.id) + "/pose"
+
+        # dog
+        self.sub_flock = pygame.sprite.Group()
         self.choice_tick_count = 0
         self.target_sheep = None
         self.driving_point = np.zeros(2)
         self.state = 'collecting'
         self.steering_point = np.zeros(2)
         self.empowerment = 0
-        self.rotation = rotation
-        self.callback = callback
-        topicString = "/robot" + str(self.id) + "/pose"
+        
+
+        # sheep 
+        self.closest_dog = None
+        self.grazing = True
+        self.grazing_direction = np.array([1, 0])
 
         
         self.listener = Listener(topicString, self.AgentCallback) 
@@ -95,7 +104,7 @@ class Dog(Agent):
 
 
 
-    def SimulationUpdate(self, screen, flock, pack, cfg):
+    def SimulationUpdate_Dog(self, screen, flock, pack, cfg):
         target = cfg['target_position']
         if (len(self.sub_flock) > 0):
             sheep_positions = []

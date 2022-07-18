@@ -56,7 +56,7 @@ class Sheep(Agent):
 
 
 
-    def update(self, screen, flock, pack, cfg):
+    def SimulationUpdate_Sheep(self, screen, flock, pack, cfg):
 
         # calculate forward vector
         forwardX = math.sin(self.rotation)
