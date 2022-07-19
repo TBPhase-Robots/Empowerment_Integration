@@ -53,7 +53,6 @@ class Agent(pygame.sprite.Sprite):
         self.position = position
         self.id = id
         self.cfg = cfg
-        self.topicString = "/robot" + str(self.id) + "/pose"
 
         # dog
         self.sub_flock = pygame.sprite.Group()
@@ -71,7 +70,7 @@ class Agent(pygame.sprite.Sprite):
         self.grazing_direction = np.array([1, 0])
 
         
-        self.listener = Listener(self.topicString, self.AgentCallback) 
+        self.listener = Listener(self.id, self.AgentCallback) 
 
 
         

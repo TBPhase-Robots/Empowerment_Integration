@@ -10,9 +10,11 @@ from geometry_msgs.msg import Pose
 
 class Listener(Node):
 
-    def __init__(self, topic_name, controller_callback):
+    def __init__(self, id, controller_callback):
         
-        super().__init__('listener')
+        super().__init__(f'listener{id}')
+
+        topic_name = f'/robot{id}/pose'
         print("created subscription: " , topic_name)
         self.sub = self.create_subscription(Pose, topic_name, controller_callback, 10)
       
