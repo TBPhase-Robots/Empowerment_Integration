@@ -51,7 +51,7 @@ def add_dog(pack, position, cfg, pack_id):
     return pack_id + 1
 #end function
 
-def main(config_name='defaultConfig', show_empowerment=False, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
+def main(config_name='defaultConfig', show_empowerment=True, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
     with open(f"experiment_config_files/{config_name}.json") as json_file:
         cfg = json.load(json_file)
 
@@ -143,21 +143,21 @@ def main(config_name='defaultConfig', show_empowerment=False, use_task_weighted_
         pygame.display.flip()
         #pygame.display.update()
 
-        protoInputHandler.LoadAgentTransforms(pack, flock)
-        protoInputHandler.RandomiseAgentTransforms(0)
-        dogTransforms = protoInputHandler.GetAgentTransforms()
+     #   protoInputHandler.LoadAgentTransforms(pack, flock)
+     #   protoInputHandler.RandomiseAgentTransforms(0)
+     #   dogTransforms = protoInputHandler.GetAgentTransforms()
 
         # transform defined by ID, position(x,y), rotation
-        for transform in dogTransforms:
-            id = transform[0]
-            position = transform[1]
-            x = position[0]
-            y = position[1]
-            rotation = transform[2]
-            for dog in pack:
-                if(dog.id == id):
-                    dog.position[0] = x
-                    dog.position[1] = y
+      #  for transform in dogTransforms:
+      #      id = transform[0]
+      #      position = transform[1]
+      #      x = position[0]
+      #      y = position[1]
+      #      rotation = transform[2]
+      #      for dog in pack:
+      #          if(dog.id == id):
+      #              dog.position[0] = x
+      #              dog.position[1] = y
                     
 
         current_time = round(time.time() * 1000)

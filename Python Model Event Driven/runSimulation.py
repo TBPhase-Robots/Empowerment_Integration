@@ -44,19 +44,18 @@ def calc_voronoi_partitioning(flock, pack):
 #end function
 
 def add_sheep(flock, agents, position, cfg, flock_id):
-    agent = Agent(position = position, id = flock_id, cfg = cfg, rotation=0, callback=ControllerCallback)
-    flock.add(agent)
-    agents.add(agent)
-    return flock_id + 1
+    print("aaa")
 #end function
 
 def add_dog(pack, agents, position, cfg, pack_id):
-    agent = Agent(position = position, id = pack_id, cfg = cfg, rotation=0, callback=ControllerCallback)
-    pack.add(agent)
-    agents.add(agent)
+    print("aaa")
 
-    return pack_id + 1
 #end function
+
+def add_agent(agents, position, cfg, id):
+    agent = Agent(position = position, id = id, cfg = cfg, rotation=0, poseAgentCallback=ControllerCallback, role = "agent")
+    agents.add(agent)
+    return id + 1
 
 
 
@@ -69,9 +68,7 @@ def DrawWorld(cfg):
 
 
 # calls standard behaviour on all sheep and dog agents for simulation
-def ExperimentUpdateTimestep(pack, flock, cfg):
-
-
+def ExperimentUpdateTimestep(agents, pack, flock, cfg):
     if (len(pack) > 0):
         calc_voronoi_partitioning(flock, pack)
         for dog in pack:
@@ -87,8 +84,45 @@ def ExperimentUpdateTimestep(pack, flock, cfg):
             sheep.SimulationUpdate_Sheep(screen, flock, pack, cfg)                  
 
 
+def StandbySetupUpdateTimestep(agents, cfg):
+    # make all agents go to top
 
 
+
+    point_x = 30 
+
+    point_y = 60
+    i = 0
+    for agent in agents:
+        i +=1 
+        point_x = 30 + i * 15
+        agent.MoveToPoint(point_x = point_x, point_y = point_y, screen = screen, agents = agents, cfg = cfg)
+
+    
+
+def SortAgentsByRole():
+    print("sort agents by role")
+
+    pack.empty()
+    flock.empty()
+    pigs.empty()
+    standby.empty()
+    
+    for agent in agents:
+        if(agent.role == "dog"):
+            pack.add(agent)
+        if(agent.role == "sheep"):
+            flock.add(agent)
+        if(agent.role == "pig"):
+            pigs.add(agent)
+        if(agent.role == "standby"):
+            standby.add(agent)
+
+pack = pygame.sprite.Group()
+flock = pygame.sprite.Group()
+pigs = pygame.sprite.Group()
+standby = pygame.sprite.Group()
+agents = pygame.sprite.Group()
 
 def main(config_name='defaultConfig', show_empowerment=False):
 
@@ -108,9 +142,7 @@ def main(config_name='defaultConfig', show_empowerment=False):
     pygame.init()
 
     screen = pygame.display.set_mode([cfg['world_width'] + 80,cfg['world_height']])
-    pack = pygame.sprite.Group()
-    flock = pygame.sprite.Group()
-    agents = pygame.sprite.Group()
+
     agent_id = 0
 
 
@@ -118,15 +150,22 @@ def main(config_name='defaultConfig', show_empowerment=False):
     # define the state command listener:
     commandListener = CommandListener(commandListenerTopicName, CommandListenerCallback) 
 
+    ## add n agents
+    for i in range (2):
+        # adds agents with role agent (un initialised)
+        agent_id = add_agent(agents = agents, position = np.array([30 + (i*15), 20]), cfg = cfg, id = agent_id)
+    
+    # put all robots into standby.
+    for agent in agents:
+        agent.role = "standby"
 
-    for pos in cfg['initial_dog_positions']:
-        agent_id = add_dog(pack, agents, np.array(pos), cfg, agent_id)
-
-    for pos in cfg['initial_sheep_positions']:
-        agent_id = add_sheep(flock, agents, np.array(pos), cfg, agent_id)
+    SortAgentsByRole()
 
     
-    state = "park"
+
+
+    
+    state = "setup"
     
     
     while (not end_game):
@@ -134,15 +173,12 @@ def main(config_name='defaultConfig', show_empowerment=False):
         pygame.display.update()
         time.sleep(0.01)
 
+        # poll for poses for each agent
+        for agent in agents:
+            agent.RosUpdate()
+        
 
-        # polls ROS topics for dogs, sheep, unnassigned for poses
-        for dog in pack:
-            dog.RosUpdate()
-
-        for sheep in flock:
-            sheep.RosUpdate()
-
-
+        # look out for commands send to this script
         rclpy.spin_once(commandListener, timeout_sec=0.01)
 
 
@@ -150,7 +186,19 @@ def main(config_name='defaultConfig', show_empowerment=False):
         DrawWorld(cfg=cfg)
 
 
-        ExperimentUpdateTimestep(pack = pack, flock=flock, cfg=cfg)
+        if(state == "setup"):
+            
+
+            print("setup")
+            print("agents", agents)
+            print("pack",pack)
+            print("flock",flock)
+            print("pigs",pigs)
+            print("standby",standby)
+            StandbySetupUpdateTimestep(agents = agents, cfg=cfg)
+
+        elif(state == "experiment"):
+            ExperimentUpdateTimestep(agents = agents, pack = pack, flock=flock, cfg=cfg)
 
             
     

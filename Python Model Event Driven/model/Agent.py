@@ -42,17 +42,18 @@ class Agent(pygame.sprite.Sprite):
         rclpy.spin_once(self.listener, timeout_sec=0)
 
 
-    def __init__(self, position, id, cfg, rotation, callback) -> None:
+    def __init__(self, position, id, cfg, rotation, poseAgentCallback, role) -> None:
         
         pygame.sprite.Sprite.__init__(self)
         
         # generic
         self.direction = np.array([1, 0])
         self.rotation = rotation
-        self.callback = callback
+        self.callback = poseAgentCallback
         self.position = position
         self.id = id
         self.cfg = cfg
+        self.role = role
 
         # dog
         self.sub_flock = pygame.sprite.Group()
@@ -104,6 +105,49 @@ class Agent(pygame.sprite.Sprite):
         return bearing1, bearing2
     #end function 
 
+
+
+
+    def PublishForceToTopic(self, force):
+        topicName = "/robot" + self.id + "/vectors"
+        print("publishing force ", force, " to ", topicName)
+
+    def MoveToPoint(self, point_x, point_y, screen, agents, cfg):
+        # point is np array [0] [1] as x,y
+        point = np.array([point_x, point_y])
+        self.steering_point = point
+
+        # calculate force to steeringpoint
+        force = self.steering_point -self.position 
+
+        print(self.id , " agent pos: ", self.position)
+        print(self.id , " agent steering point: ", self.steering_point)
+        print(force)
+
+       # force = np.linalg.norm(force)
+
+        # calculate repulsion force from dogs
+        F_D_D = np.zeros(2)
+        for agent in agents:
+            if (agent.id != self.id):
+                if (np.array_equal(self.position, agent.position)):
+                    F_D_D = np.add(F_D_D, (self.position - agent.position) / np.linalg.norm(self.position - agent.position))
+
+        repulsionForce = F_D_D + (0.75 * np.array([F_D_D[1], -F_D_D[0]]))
+        print(repulsionForce)
+      #  moveForce = force + repulsionForce
+
+        moveForce = force
+        #print(repulsionForce)
+
+        pygame.draw.circle(screen, colours.DRIVE, self.position, 5)
+
+
+        # once we have real world movement we won't do self.position = anymore
+        self.position = np.add(self.position, moveForce / 5)
+
+        self.PublishForceToTopic(moveForce)
+        pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array(moveForce)) ,4)
 
 
 
@@ -166,6 +210,11 @@ class Agent(pygame.sprite.Sprite):
         if (cfg['debug_steering_points']):
             pygame.draw.circle(screen, colours.BLACK, self.steering_point, 4)
 
+        # publish force to topic
+        self.PublishForceToTopic(F)
+
+
+        ## on screen stuff ========================================================================
 
         # calculate forward vector
         forwardX = math.sin(self.rotation)
