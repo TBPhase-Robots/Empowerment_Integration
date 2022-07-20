@@ -20,14 +20,44 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 
+state = "standby_setup_loop"
 
+# controller callback is called by an agent whenever it has successfully updated its state via ROS pose
 def ControllerCallback(data):
     print("topic contents:")
     print(data)
 
+def DispatchCallback(data):
+    print("DispatchCallback")
+    print(data.data)
+    # if the user has sent command to dispatch
+    if(data.data == "dispatch"):
+        # check if there are any agents left in the standby pool
+        if(len(standby) > 0):
+            # grab the first in agent in the standby pool
+            agent = GetAnyAgentFromGroup(standby)
+            agent.role = "dog"
+            SortAgentsByRole()
+    # take a dog off the field and return to standby
+    if(data.data == "recall"):
+        if(len(pack) > 0):
+            agent = GetAnyAgentFromGroup(pack)
+            agent.role = "standby"
+            SortAgentsByRole()
+
+
+
+def GetAnyAgentFromGroup(group):
+    for agent in group:
+        return agent
+
+
+# command listener callback is called whenever a new state is recieved by user via the state controller script, utilising CommandListener.py
 def CommandListenerCallback(data):
+    global state
     print("CommandListenerData:")
-    print(data)
+    print(data.data)
+    state = data.data
 
 def calc_voronoi_partitioning(flock, pack):
     for dog in pack:
@@ -82,23 +112,34 @@ def ExperimentUpdateTimestep(agents, pack, flock, cfg):
         for sheep in flock:
 
             sheep.SimulationUpdate_Sheep(screen, flock, pack, cfg)                  
+    for pig in pigs:
+        pig.DrawSelf(screen)
+    for agent in standby:
+        agent.DrawSelf(screen)
 
+def MoveToPointDecision(agent, movePos, cfg):
+    point_x = movePos[0]
+    point_y = movePos[1]
+    agentPos = np.array([agent.position[0], agent.position[1]])
+    if(np.linalg.norm(movePos - agentPos) > 5):
+        agent.MoveToPoint(point_x = point_x, point_y = point_y, screen = screen, agents = agents, cfg = cfg)
+    else:
+        agent.HaltAgent(screen=screen)
 
 def StandbySetupUpdateTimestep(agents, cfg):
     # make all agents go to top
-
-
-
-    point_x = 30 
-
-    point_y = 60
+    standbyPositions = cfg['standby_positions']
     i = 0
     for agent in agents:
         i +=1 
-        point_x = 30 + i * 15
-        agent.MoveToPoint(point_x = point_x, point_y = point_y, screen = screen, agents = agents, cfg = cfg)
+        point = standbyPositions[i]
+        # if the distance between target point and self is very low, halt movement and do not send move command
+        movePos = np.array(point)
+        MoveToPointDecision(agent = agent, movePos = movePos, cfg = cfg)
 
-    
+def SetAllAgentRolesToStandby():
+    for agent in agents:
+        agent.role = "standby"
 
 def SortAgentsByRole():
     print("sort agents by role")
@@ -135,6 +176,7 @@ def main(config_name='defaultConfig', show_empowerment=False):
         cfg['show_empowerment'] = show_empowerment
 
     global screen
+    global state
     
 
     end_game = False
@@ -147,17 +189,22 @@ def main(config_name='defaultConfig', show_empowerment=False):
 
 
     commandListenerTopicName = "/controller/command"
+    dispatchListenerTopicName = "/controller/dispatch"
     # define the state command listener:
     commandListener = CommandListener(commandListenerTopicName, CommandListenerCallback) 
 
+    # define the dispatch listener
+    dispatchListener = CommandListener(dispatchListenerTopicName, DispatchCallback)
+
     ## add n agents
-    for i in range (2):
+    for i in range (15):
         # adds agents with role agent (un initialised)
         agent_id = add_agent(agents = agents, position = np.array([30 + (i*15), 20]), cfg = cfg, id = agent_id)
     
+
+
     # put all robots into standby.
-    for agent in agents:
-        agent.role = "standby"
+    SetAllAgentRolesToStandby()
 
     SortAgentsByRole()
 
@@ -165,7 +212,7 @@ def main(config_name='defaultConfig', show_empowerment=False):
 
 
     
-    state = "setup"
+    
     
     
     while (not end_game):
@@ -180,27 +227,140 @@ def main(config_name='defaultConfig', show_empowerment=False):
 
         # look out for commands send to this script
         rclpy.spin_once(commandListener, timeout_sec=0.01)
-
+        # check if user wants to dispatch/recall dogs
+        rclpy.spin_once(dispatchListener, timeout_sec=0.01)
 
         # draw world 
         DrawWorld(cfg=cfg)
 
 
-        if(state == "setup"):
+        if(state == "standby_setup_loop"):
+            StandbySetupUpdateTimestep(agents = standby, cfg=cfg)
+            for sheep in flock:
+                sheep.DrawSelf(screen = screen)
+
+            for pig in pigs:
+                pig.DrawSelf(screen = screen)
+            
+            for dog in pack:
+                dog.DrawSelf(screen = screen)
+
+        if(state == "setup_start"):
+
+            # we assume all agents are in standby position. Set all agents to standby:
+            SetAllAgentRolesToStandby()
+            SortAgentsByRole()
+            # look at experiment config file
+            # choose first n standby agents as sheep
+            sheepPositions = cfg['initial_sheep_positions']
+            n = len(sheepPositions)
+            i = 0
+
+            for agent in standby:
+                agent.role = "sheep"
+                i += 1
+                if(i >= n):
+                    break
+            
+            # re order the groups of agents
+            SortAgentsByRole()
+
+            dogPositions = cfg['initial_dog_positions']
+            n = len(dogPositions)
+            i = 0
+            for agent in standby:
+                agent.role = "dog"
+                i += 1
+                if(i >= n):
+                    break
+
+            # re order the groups of agents
+            SortAgentsByRole()
+
+            # calculate the amount of reserve dogs left
+            reserveDogs = (cfg['max_number_of_dogs'] - len(pack))
+
+            # subtract the amount of reserve dogs from the standby agents. The remaining n should go to the pigsty
+            pigAmount = len(standby) - reserveDogs
+
+            if(pigAmount > 0):
+                # assign n pigs to the pigsty from the standby pool
+                i = 0
+                for agent in standby:
+                    agent.role = "pig"
+                    i += 1
+                    if(i >= pigAmount):
+                        break
+
+            # re order the groups of agents
+            SortAgentsByRole()
+
+            # advance the state machine loop to the next state
+            state = "sheep_setup_loop"
+
             
 
-            print("setup")
-            print("agents", agents)
-            print("pack",pack)
-            print("flock",flock)
-            print("pigs",pigs)
-            print("standby",standby)
-            StandbySetupUpdateTimestep(agents = agents, cfg=cfg)
+        if(state == "sheep_setup_loop"):
+
+            # get the list of positions for sheep to move to
+            sheepPositions = cfg['initial_sheep_positions']
+            i = 0
+            for sheep in flock:
+                pos = sheepPositions[i]
+                MoveToPointDecision(agent = sheep, movePos = np.array(pos), cfg = cfg)
+               # sheep.MoveToPoint(point_x = point_x, point_y = point_y, screen = screen, agents = agents, cfg = cfg)
+                i += 1
+            
+            for dog in pack:
+                dog.DrawSelf(screen = screen)
+
+            for agent in standby:
+                agent.DrawSelf(screen = screen)
+            
+            for pig in pigs:
+                pig.DrawSelf(screen = screen)
+        
+        if(state == "dog_setup_loop"):
+            # get the list of positions for starting dogs to move to
+            dogPositions = cfg['initial_dog_positions']
+            i = 0
+            for dog in pack:
+                pos = dogPositions[i]
+                MoveToPointDecision(agent = dog, movePos = np.array(pos), cfg = cfg)
+                i += 1
+            for sheep in flock:
+                sheep.DrawSelf(screen = screen)
+
+            for agent in standby:
+                agent.DrawSelf(screen = screen)
+            
+            for pig in pigs:
+                pig.DrawSelf(screen = screen)
+        
+        if(state == "pig_setup_loop"):
+            # get the list of positions for the unused pigs to move to
+            pigPositions = cfg['pigsty_positions']
+            i = 0
+            for pig in pigs:
+                pos = pigPositions[i]
+                MoveToPointDecision(agent = pig, movePos = np.array(pos), cfg = cfg)
+                i += 1
+
+            for sheep in flock:
+                sheep.DrawSelf(screen = screen)
+
+            for agent in standby:
+                agent.DrawSelf(screen = screen)
+            
+            for dog in pack:
+                dog.DrawSelf(screen = screen)
 
         elif(state == "experiment"):
-            ExperimentUpdateTimestep(agents = agents, pack = pack, flock=flock, cfg=cfg)
-
-            
+            ExperimentUpdateTimestep(agents = agents, pack = pack, flock=flock,  cfg=cfg)
+            StandbySetupUpdateTimestep(agents = standby, cfg=cfg)
+            for pig in pigs:
+                pig.DrawSelf(screen = screen)
+                pig.HaltAgent(screen)
     
 
         
@@ -209,20 +369,7 @@ def main(config_name='defaultConfig', show_empowerment=False):
         for event in pygame.event.get():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if (event.button == 1 and len(pack) < cfg['max_number_of_dogs']):
-                
-                    pack_id = add_dog(pack, np.array([event.pos[0], event.pos[1]]), cfg, pack_id)
-                elif event.button == 3:
-                
-                    if (len(pack) > 0):
-                        closest_dog = None
-                        for dog in pack:
-                            if closest_dog == None:
-                                closest_dog = dog
-                            else:
-                                if (np.linalg.norm(event.pos - dog.position) < np.linalg.norm(event.pos - closest_dog.position)):
-                                    closest_dog = dog
-                        
-                        pack.remove(closest_dog)
+                    print("dispatch dog to position")
 
         
 

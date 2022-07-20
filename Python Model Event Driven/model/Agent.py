@@ -54,6 +54,7 @@ class Agent(pygame.sprite.Sprite):
         self.id = id
         self.cfg = cfg
         self.role = role
+        self.halted = False
 
         # dog
         self.sub_flock = pygame.sprite.Group()
@@ -106,47 +107,78 @@ class Agent(pygame.sprite.Sprite):
     #end function 
 
 
+    def DrawSelf(self, screen):
+        if(self.role == "dog"):
+            pygame.draw.circle(screen, colours.BLUE, self.position, 5)
+        elif(self.role == "sheep"):
+            pygame.draw.circle(screen, colours.WHITE, self.position, 5)
+        elif(self.role == "standby"):
+            pygame.draw.circle(screen, colours.BLUE, self.position, 5)
+        elif(self.role == "pig"):
+            pygame.draw.circle(screen, colours.BLACK, self.position, 5)
+        else:
+            pygame.draw.circle(screen, colours.GREEN, self.position, 5)
 
-
+    # TODO:
+    # enable setting for sending to real robots
     def PublishForceToTopic(self, force):
-        topicName = "/robot" + self.id + "/vectors"
-        print("publishing force ", force, " to ", topicName)
+        topicName = "/robot" + str(self.id) + "/vectors"
+       # print("publishing force ", force, " to ", topicName)
+
+    # halts an agent's movement in the real world 
+    # communicated via sending a [0,0] vector
+    # a flag remains signalling the robot has been halted until a new command is sent
+    def HaltAgent(self, screen):
+        self.DrawSelf(screen)
+        if(not self.halted):
+            print("agent ", self.id, " has been halted")
+            self.PublishForceToTopic(np.array([0,0]))
+            self.halted = True
+
 
     def MoveToPoint(self, point_x, point_y, screen, agents, cfg):
+        # valid move command, make sure we are not halted
+        self.halted = False
+
+        moveRepelDistance = 20
+
         # point is np array [0] [1] as x,y
         point = np.array([point_x, point_y])
         self.steering_point = point
 
         # calculate force to steeringpoint
         force = self.steering_point -self.position 
+        force = force / np.linalg.norm(force)
 
-        print(self.id , " agent pos: ", self.position)
-        print(self.id , " agent steering point: ", self.steering_point)
-        print(force)
+
+     #   print(self.id , " agent pos: ", self.position)
+     #   print(self.id , " agent steering point: ", self.steering_point)
+     #   print(force)
 
        # force = np.linalg.norm(force)
 
-        # calculate repulsion force from dogs
+        # calculate repulsion force from all other agents
         F_D_D = np.zeros(2)
         for agent in agents:
             if (agent.id != self.id):
-                if (np.array_equal(self.position, agent.position)):
+                if (np.linalg.norm(self.position - agent.position) < moveRepelDistance):
                     F_D_D = np.add(F_D_D, (self.position - agent.position) / np.linalg.norm(self.position - agent.position))
 
         repulsionForce = F_D_D + (0.75 * np.array([F_D_D[1], -F_D_D[0]]))
-        print(repulsionForce)
+      #  print(repulsionForce)
       #  moveForce = force + repulsionForce
 
-        moveForce = force
+        moveForce = force + repulsionForce
         #print(repulsionForce)
 
-        pygame.draw.circle(screen, colours.DRIVE, self.position, 5)
+        self.DrawSelf(screen)
 
 
         # once we have real world movement we won't do self.position = anymore
-        self.position = np.add(self.position, moveForce / 5)
+        self.position = np.add(self.position, moveForce*5)
 
         self.PublishForceToTopic(moveForce)
+        
         pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array(moveForce)) ,4)
 
 
@@ -154,6 +186,7 @@ class Agent(pygame.sprite.Sprite):
 
 
     def SimulationUpdate_Dog(self, screen, flock, pack, cfg):
+        self.halted = False
         target = cfg['target_position']
         if (len(self.sub_flock) > 0):
             sheep_positions = []
@@ -407,7 +440,7 @@ class Agent(pygame.sprite.Sprite):
 
 
     def SimulationUpdate_Sheep(self, screen, flock, pack, cfg):
-
+        self.halted = False
         # calculate forward vector
         forwardX = math.sin(self.rotation)
         forwardY = math.cos(self.rotation)
