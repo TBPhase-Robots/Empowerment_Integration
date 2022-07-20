@@ -3,7 +3,8 @@
     "world_height" : 600,
     "play_area_x" : 50,
     "play_area_y": 100,
-    "play_area_width" : 700,
+    "play_area_width" : 750,
+    "play_area_height" : 500, 
     "time_limit" : 5000,
 
     "debug_dog_forces" : false,

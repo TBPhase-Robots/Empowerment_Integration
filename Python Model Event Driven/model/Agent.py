@@ -301,11 +301,7 @@ class Agent(pygame.sprite.Sprite):
                         self.position = np.add(self.position, self.position - dog.position)
                         collision_check = True
         
-        if (self.position[0] > cfg['world_width'] - 10): self.position[0] = cfg['world_width'] - 10
-        elif (self.position[0] < 10): self.position[0] = 10
 
-        if (self.position[1] > cfg['world_height'] - 10): self.position[1] = cfg['world_height'] - 10
-        elif (self.position[1] < 10): self.position[1] = 10
 
         if (cfg['empowerment_type'] == 0):
             self.empowerment = len(self.sub_flock)
@@ -501,6 +497,37 @@ class Agent(pygame.sprite.Sprite):
 
             F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 
+
+            # check for bounds outside of the play area
+            x = self.position[0]
+            y = self.position[1]
+            playAreaLeftBound = cfg['play_area_x']
+            playAreaTopBound = cfg['play_area_y']
+
+            playAreaRightBound = playAreaLeftBound + cfg['play_area_width']
+            playAreaBottomBound = playAreaTopBound + cfg['play_area_height']
+
+            boundaryForce = np.array([0.0,0.0])
+            # if outside of the play area, add a force
+            r = random.uniform(-1, 1)
+            if(x < playAreaLeftBound):
+                boundaryForce += np.array([2.0,r])
+                print("agent too left at position ", x, y)
+            if(x > playAreaRightBound):
+                boundaryForce += np.array([-2.0, r])
+                print("agent too right at position ", x, y)
+            if(y < playAreaTopBound):
+                print("agent too high at position ", x, y)
+                boundaryForce += np.array([r, 2.0])
+            if( y > playAreaBottomBound):
+                print("agent too low at position ", x, y)
+                boundaryForce += np.array([r, -2.0])
+
+            F += boundaryForce*25
+
+            # publish F to topic
+            self.PublishForceToTopic(F)
+
             angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), np.array(F))
             if(cfg['realistic_agent_movement_markers']):
                 # black line is target rotation
@@ -519,6 +546,8 @@ class Agent(pygame.sprite.Sprite):
                     self.rotation += 0.2
                     self.position = np.add(self.position, [2*forwardX, -2*forwardY])
                 else:
+                    if(np.linalg.norm(F) > 10):
+                        F /= (np.linalg.norm(F) /10)
                     self.position = np.add(self.position, np.array(F))
 
             if (cfg['debug_sheep_forces']):
@@ -535,11 +564,15 @@ class Agent(pygame.sprite.Sprite):
                         self.position = np.add(self.position, self.position - sheep.position)
                         collision_check = True
 
-        if (self.position[0] > cfg['world_width'] - 10): self.position[0] = cfg['world_width'] - 10
-        elif (self.position[0] < 10): self.position[0] = 10
 
-        if (self.position[1] > cfg['world_height'] - 10): self.position[1] = cfg['world_height'] - 10
-        elif (self.position[1] < 10): self.position[1] = 15
+        
+
+        # TODO - remove onscreen bound checks
+        #if (self.position[0] > cfg['world_width'] - 10): self.position[0] = cfg['world_width'] - 10
+        #elif (self.position[0] < 10): self.position[0] = 10
+
+        #if (self.position[1] > cfg['world_height'] - 10): self.position[1] = cfg['world_height'] - 10
+        #elif (self.position[1] < 10): self.position[1] = 15
 
         super().update(screen)
         if (cfg['debug_sheep_states']):
