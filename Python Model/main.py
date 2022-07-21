@@ -35,13 +35,53 @@ import gspread
 import model.MenuLog as MenuLog
 import os
 import sys
+from sys import platform
+
+import pathlib
+
 #-------------------------------------------------
 
 
-# -----------------DIRECTORIES, PATHS AND CONFIGURATIONS-----------------------
+# -----------------DIRECTORIES, PATHS AND CONFIGURATIONS---------------------
+# get current OS
+myOS = ""
+
+if (sys.platform.startswith("linux") or sys.platform.startswith("linux2")):
+    # linux
+    print("running on linux")
+    myOS = "linux"
+elif (sys.platform.startswith("darwin")):
+    # OS X
+    print("running on mac")
+    myOs = "mac"
+elif (sys.platform.startswith("win32")):
+    # Windows...
+    print("running on windows")
+    myOs = "win"
+
 # Set the configuration and results directories folders
 CONFIG_DIR = "experiment_config_files/"
-RESULTS_DIR = "C:\\Users\\matth\\Documents\\Empowerment_Integration\\Python Model\\Empowerment Results"
+
+
+
+#  get relative path for linux
+dirname = os.path.abspath(os.getcwd())
+
+print(dirname)
+
+
+l =[]
+l.append(dirname)
+l.append('/Empowerment Results')
+linuxResultsDir = ''.join(l)
+
+
+print(linuxResultsDir)
+
+if(myOS == "win"):
+    RESULTS_DIR = "C:\\Users\\matth\\Documents\\Empowerment_Integration\\Python Model\\Empowerment Results"
+elif(myOS == "linux"):
+    RESULTS_DIR = linuxResultsDir
 
 # Credentials needed to log to a google sheet
 #   This function was removed at the beta stage

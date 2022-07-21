@@ -11,7 +11,7 @@
     "debug_dog_states" : false,
     
     "empowerment_type" : 1,
-
+    "show_empowerment" : false,
     "initial_sheep_positions" : [[400, 300]],
     "initial_dog_positions" : [[80, 80], [80, 140], [140, 80], [50, 50],[120, 30], [30, 120]],
 
