@@ -5,7 +5,7 @@ import sys
 from model.Agent import Agent
 import random
 import math
-
+from math import degrees, atan2
 from model.Sheep import Sheep
 
 class Dog(Agent):
@@ -20,6 +20,28 @@ class Dog(Agent):
         self.state = 'collecting'
         self.steering_point = np.zeros(2)
         self.empowerment = 0
+        self.rotation = 0
+    #end function 
+
+
+        # a and b must be np arrays
+    def CalcAngleBetweenVectors(self, a, b):
+        # NORMALISE A AND B
+        a = a / np.linalg.norm(a)
+        b = b / np.linalg.norm(b)
+        dot = np.dot(a, b)
+        if (dot > 1):
+            dot = 1
+        theta = np.arccos(dot)
+        if ((np.cross([a[0], a[1], 0], [b[0], b[1], 0])[2] > 0)   ):
+            theta = - theta
+        return math.degrees(theta)
+    
+    def CalcBearing(x, y, center_x, center_y):
+        angle = degrees(atan2(y - center_y, x - center_x))
+        bearing1 = (angle + 360) % 360
+        bearing2 = (90 - angle) % 360
+        return bearing1, bearing2
     #end function 
 
     def update(self, screen, flock, pack, cfg):
@@ -70,7 +92,7 @@ class Dog(Agent):
             self.steering_point = np.add(outer_flock_radius_point, cfg['driving_distance_from_flock_radius'] * ((C - target) / np.linalg.norm(C - target)))
 
         F_H = self.calc_F_H(screen, cfg, self.steering_point, flock)
-        F_D = self.calc_F_D(pack)
+        F_D = self.calc_F_D(pack, cfg)
         
         F = (cfg['dog_forces_with_flock'] * F_H) + (cfg['dog_repulsion_from_dogs'] * F_D)
 
@@ -79,7 +101,41 @@ class Dog(Agent):
         if (cfg['debug_steering_points']):
             pygame.draw.circle(screen, colours.BLACK, self.steering_point, 4)
 
-        self.position = np.add(self.position, F)
+        # calculate forward vector
+        forwardX = math.sin(self.rotation)
+        forwardY = math.cos(self.rotation)
+
+        if(cfg['realistic_agent_movement_markers']):
+            # black line is target rotation
+            pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array(F)*10) ,8)
+            # draw line in forward vector
+            pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, np.array([forwardX, -forwardY])*80) ,5)
+
+        # calculate angle between current dir and target dir:
+        angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), np.array(F))
+
+        # F is the movement vector for this frame.
+
+        # Unrealistic movement
+        if(not cfg['realistic_agent_movement']):
+            self.position = np.add(self.position, F)
+        # Realistic movement
+        else:
+            # differential drive rotation towards target direction
+
+            # rotate until forward vector is parallel to force within reason
+
+            # if vector is parallel, then go forward
+            turnRate = cfg['realistic_dog_turn_rate']
+            if(angle > 5):
+                self.rotation -= turnRate
+                self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+            elif(angle < -5):
+                self.rotation += turnRate
+                self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+            else:
+                
+                self.position = np.add(self.position, F)
 
         self.choice_tick_count += 1
         if (self.choice_tick_count >= cfg['ticks_per_choice']):
@@ -150,11 +206,12 @@ class Dog(Agent):
         self.sub_flock.add(sheep)
     #end function
 
-    def calc_F_D(self, pack):
+    def calc_F_D(self, pack, cfg):
+        moveRepelDistance = cfg['dog_dog_repulsion_range']
         F_D_D = np.zeros(2)
         for dog in pack:
             if (dog.id != self.id):
-                if (np.array_equal(self.position, dog.position)):
+                if (np.linalg.norm(self.position - dog.position) < moveRepelDistance):
                     F_D_D = np.add(F_D_D, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
 
         F_D = F_D_D + (0.75 * np.array([F_D_D[1], -F_D_D[0]]))
