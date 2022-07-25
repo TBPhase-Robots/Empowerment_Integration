@@ -189,7 +189,7 @@ def set_menu_id(menu_id, menu=[], save_details_b=False):
 #end function
 
 
-def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_empowerment=True, use_task_weighted_empowerment=False):
+def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_empowerment=False, use_task_weighted_empowerment=False):
     """
     Run's a single trial of the empowerment simulation
 
@@ -262,7 +262,7 @@ def instructions_menu_setup():
     text1 = ("In this experiment, you will be part of a TEAM OF VIRTUAL SHEEPDOGS,\n"
              "working together to herd a flock of virtual sheep towards a safe area.\n\n"
 
-             "The sheep are the BLACK dots and the safe area is the RED SQUARE.\n"
+             "The sheep are the WHITE dots and the safe area is the RED SQUARE.\n"
              "The dogs are COLOURED DOTS. Some dogs are already in the field.\n"
              "More dogs are available in a square DOGHOUSE to the right.\n\n"
 
@@ -443,7 +443,7 @@ def experimental_block_1_setup():
     text = ("You will now be presented with a block of trials.\n\n"
 
             "Your task is to help your team of dogs (blue dots)\n"
-            "herd the sheep (black dots) into the safe area (the red square).\n\n"
+            "herd the sheep (white dots) into the safe area (the red square).\n\n"
 
             "Use your mouse to ADD (left click) or REMOVE (right click) dogs\n"
             "to complete the task quickly AND efficiently.\n\n"
@@ -471,7 +471,7 @@ def experimental_block_2_setup():
     text = ("You will now be presented with a block of trials.\n\n"
             
             "Your task is to help your team of dogs (coloured dots)\n"
-            "herd the sheep (black dots) into the safe area (the red square).\n\n"
+            "herd the sheep (white dots) into the safe area (the red square).\n\n"
 
             "The changing colour of each dog indicates how much influence\n"
             "that dog feels that it has at that moment:\n"
