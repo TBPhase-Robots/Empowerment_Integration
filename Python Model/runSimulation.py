@@ -84,7 +84,7 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
     if RECORD_VIDEO:
         (screen_width,screen_height)= screen.get_size()
         resolution = (screen_width, screen_height)
-        filename = f"{log_path}\{sim_session_id}\{config_name}_recording.avi"
+        filename = f"{log_path}/{sim_session_id}/{config_name}_recording.avi"
         video = VideoRecorder.VideoRecorder()
         fps = 30
         video.setConfig(filename, fps, resolution)
@@ -158,7 +158,7 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
             frame = np.rot90(frame)
             video.grabScreen(frame)
         
-        inner_buffer = 30
+        inner_buffer = 10
         left_bound = cfg['target_position'][0] - 100 + inner_buffer
         right_bound = cfg['target_position'][0] + 100 - inner_buffer
         top_bound = cfg['target_position'][1] - 100 + inner_buffer

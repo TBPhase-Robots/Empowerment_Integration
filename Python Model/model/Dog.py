@@ -110,6 +110,8 @@ class Dog(Agent):
             pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array(F)*10) ,8)
             # draw line in forward vector
             pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, np.array([forwardX, -forwardY])*80) ,5)
+        else:
+            pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array([forwardX, -forwardY])*10) ,2)
 
         # calculate angle between current dir and target dir:
         angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), np.array(F))

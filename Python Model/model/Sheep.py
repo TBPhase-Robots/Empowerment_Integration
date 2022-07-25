@@ -77,6 +77,8 @@ class Sheep(Agent):
                 pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, self.grazing_direction*5) ,8)
                 # draw line in forward vector
                 pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, np.array([forwardX, -forwardY])*30) ,5)
+            else:
+                pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array([forwardX, -forwardY])*10) ,2)
 
             if (random.random() < cfg['grazing_movement_chance'] ):
                 if(not cfg['realistic_agent_movement']):
@@ -109,6 +111,9 @@ class Sheep(Agent):
                 pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, self.grazing_direction*8) ,8)
                 # draw line in forward vector
                 pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, np.array([forwardX, -forwardY])*40) ,5)
+            else:
+                pygame.draw.line(screen, colours.BLACK, self.position, np.add(self.position, np.array([forwardX, -forwardY])*10) ,2)
+            
 
 
             if(not cfg['realistic_agent_movement']):
