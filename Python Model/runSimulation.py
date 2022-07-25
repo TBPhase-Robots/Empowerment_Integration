@@ -57,7 +57,7 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
     if (sys.platform.startswith("linux") or sys.platform.startswith("linux2")):
         # linux
         print("running on linux a")
-        myOS = "linux"
+        myOs = "linux"
     elif (sys.platform.startswith("darwin")):
         # OS X
         print("running on mac a")
