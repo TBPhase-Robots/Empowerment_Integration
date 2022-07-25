@@ -131,13 +131,32 @@ class Dog(Agent):
             turnRate = cfg['realistic_dog_turn_rate']
             if(angle > 5):
                 self.rotation -= turnRate
-                self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+
+                deltaV = [2*forwardX, -2*forwardY]
+                dog_max_speed = cfg['dog_max_speed']
+                if(np.linalg.norm(deltaV) > dog_max_speed):
+                    deltaV = deltaV * (dog_max_speed / np.linalg.norm(deltaV))
+
+                newPos = np.add(self.position, deltaV)     
+                self.position = newPos
             elif(angle < -5):
                 self.rotation += turnRate
-                self.position = np.add(self.position, [2*forwardX, -2*forwardY])
+                deltaV = [2*forwardX, -2*forwardY]
+                dog_max_speed = cfg['dog_max_speed']
+                if(np.linalg.norm(deltaV) > dog_max_speed):
+                    deltaV = deltaV * (dog_max_speed / np.linalg.norm(deltaV))
+
+                newPos = np.add(self.position, deltaV)     
+                self.position = newPos
+
             else:
+                deltaV = F
+                dog_max_speed = cfg['dog_max_speed']
+
+                if(np.linalg.norm(deltaV) > dog_max_speed):
+                    deltaV = deltaV * (dog_max_speed / np.linalg.norm(deltaV))
                 
-                self.position = np.add(self.position, F)
+                self.position = np.add(self.position, deltaV)
 
         self.choice_tick_count += 1
         if (self.choice_tick_count >= cfg['ticks_per_choice']):
@@ -261,6 +280,14 @@ class Dog(Agent):
             sum = np.add(sum, (self.position - sheep.position) / (2 *np.linalg.norm(self.position - sheep.position)))
 
         F_F = H_F * sum
+        # cap dog_max_repulsion_from_sheep
+        repulsionFromSheep = cfg['dog_repulsion_from_sheep'] * F_F
+        if(np.linalg.norm(repulsionFromSheep) > cfg['dog_max_repulsion_from_sheep']):
+            vectorMagnitude = np.linalg.norm(repulsionFromSheep)
+            ratio = cfg['dog_max_repulsion_from_sheep'] / vectorMagnitude
+            repulsionFromSheep = repulsionFromSheep * ratio
+        
+
         F_W = R_D_W
         F_T = H_T * R_D_T
 
@@ -268,7 +295,7 @@ class Dog(Agent):
             pygame.draw.line(screen, colours.GREEN, self.position, np.add(self.position, 10 * cfg['dog_repulsion_from_sheep'] * F_F), 8)
             pygame.draw.line(screen, colours.RED, self.position, np.add(self.position, 10 * cfg['dog_attraction_to_steering_point'] * F_W), 8)
             pygame.draw.line(screen, colours.BLUE, self.position, np.add(self.position, 10 * cfg['dog_orbital_around_flock'] * F_T), 8)
-        F_H = (cfg['dog_repulsion_from_sheep'] * F_F) + (cfg['dog_attraction_to_steering_point'] * F_W) + (cfg['dog_orbital_around_flock'] * F_T)
+        F_H = repulsionFromSheep + (cfg['dog_attraction_to_steering_point'] * F_W) + (cfg['dog_orbital_around_flock'] * F_T)
 
         return F_H
     #end function
