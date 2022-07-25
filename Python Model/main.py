@@ -72,16 +72,13 @@ print(dirname)
 
 l =[]
 l.append(dirname)
-l.append('/Empowerment Results')
-linuxResultsDir = ''.join(l)
-
-
-print(linuxResultsDir)
-
 if(myOS == "win"):
-    RESULTS_DIR = "C:\\Users\\matth\\Documents\\Empowerment_Integration\\Python Model\\Empowerment Results"
+    l.append('\\Empowerment Results')
 elif(myOS == "linux"):
-    RESULTS_DIR = linuxResultsDir
+    l.append('/Empowerment Results')
+resultsDir = ''.join(l)
+
+RESULTS_DIR = resultsDir
 
 # Credentials needed to log to a google sheet
 #   This function was removed at the beta stage
