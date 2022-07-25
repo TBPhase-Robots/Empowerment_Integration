@@ -259,23 +259,31 @@ def instructions_menu_setup():
     global menu_screen
     title1 = ("Please read the instructions carefully\n")
 
-    text1 = ("In this experiment, you will be part of a *team of virtual sheepdogs*,\nworking together to herd a flock of virtual sheep towards a safe area.\n"
+    text1 = ("In this experiment, you will be part of a TEAM OF VIRTUAL SHEEPDOGS,\n"
+             "working together to herd a flock of virtual sheep towards a safe area.\n\n"
 
-             "The sheep are the *black* dots and the safe area is the *red square*.\n"
-             "The dogs are *coloured dots*. Some dogs are already in the field.\n"
-             "More dogs are available in a square *doghouse* to the right.\n"
+             "The sheep are the BLACK dots and the safe area is the RED SQUARE.\n"
+             "The dogs are COLOURED DOTS. Some dogs are already in the field.\n"
+             "More dogs are available in a square DOGHOUSE to the right.\n\n"
 
-             "The task must be completed *quickly* and *efficiently*, i.e., using the *minimum number of dogs*.\n \n"
-             "You will complete *two* blocks of 12 trials.\nWhen each trial starts, some dogs will try to move the sheep towards the safe area.\n"
+             "The task must be completed QUICKLY and EFFICIENTLY, i.e.,\n"
+             "using the MINIMUM AMOUNT OF TIME and the MINIMUM NUMBER OF DOGS.\n\n"
+             
+             "You will complete TWO blocks of 12 trials.\n"
+             "When each trial starts, some dogs will try to move the sheep towards the safe area.\n"
 
-              "You will help by using your mouse buttons to *add* or *remove* dogs at any point.\n"
-              "-- *Adding* dogs may help your team to complete the task more *quickly* --\n"
-              "-- *Removing* dogs may help your team to complete the task more *efficiently* --\n\n"
+              "You will help by using your mouse buttons to ADD or REMOVE dogs at any point.\n"
+              "-- ADDING dogs may help your team to complete the task more QUICKLY --\n"
+              "-- REMOVING dogs may help your team to complete the task more EFFICIENTLY --\n\n"
 
-              "For some trials it may not be possible to move all sheep into the safe area in the time available.\nIn such cases, please try to move them *as close to the safe area as possible*.\n\n"
+              "Throughout each trial you may add or remove dogs AS MANY TIMES AS YOU WISH.\n\n"
+
+              "For some trials it may not be possible to move all sheep into the safe area in the time available.\n"
+              "In such cases, please try to move them AS CLOSE TO THE SAFE AREA AS POSSIBLE.\n\n"
 
               "At the end of each trial, you will be asked to answer a few short questions.\n"
               "Please answer these question promptly and move on to the next trial quickly.\n\n"
+              
               "Before the experiment starts, a tutorial will explain how the trials work.\n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
@@ -308,14 +316,24 @@ def tutorial_part1_setup():
     """ Generates a menu for the first part of the tutorial """
     global menu_screen
     title = "Tutorial Part 1: Adding a Dog from the Kennel"
-    text = ("In Part 1, you will see *one* sheep outside the safe area.\n\n"
-            "Use your *left* mouse button to *add* a dog from the doghouse to the field.\n"
+    text = ("In Part 1, you will see ONE sheep outside the safe area.\n\n"
+            "Use your LEFT mouse button to ADD a dog from the doghouse to the field.\n"
             "(A dog will appear near the location of your cursor when you click.)\n"
             "Watch it move the sheep into the safe area.\n\n"
             "Press 'Ok' to Start Part 1. \n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
+
+
+
+
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
+
+    # to be added later, sample code for text boxes
+   # validchars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+   # menu.add.text_input(title = "", valid_chars = validchars)
+   # menu.add.button('Done', set_menu_id, 92, menu, True)
+
     menu.add.label(text, max_char=max_char, font_size=title_size)
     menu.add.button('OK', run_simulation, 32, TUTORIAL_SEQUENCE_A[0], font_size=button_size)
     # menu.add.button('Start', run_tutorial)
@@ -330,10 +348,10 @@ def tutorial_part2_setup():
     """ Generates a menu for the second part of the tutorial """
     global menu_screen
     title = "Tutorial Part 2: Removing Dogs to the Kennel"
-    text = ("In Part 2, you will see *one* sheep being herded by *six* dogs.\n\n"
-            "Use your *right* mouse button to *remove* some dogs to the doghouse.\n"
+    text = ("In Part 2, you will see ONE sheep being herded by SIX dogs.\n\n"
+            "Use your RIGHT mouse button to REMOVE some dogs to the doghouse.\n"
             "(A dog near the location of your cursor will disappear when you click.)\n"
-            "Watch the remaining team complete the herding task *more efficiently*.\n\n"
+            "Watch the remaining team complete the herding task MORE EFFICIENTLY.\n\n"
             "Press 'Ok' to Start Part 2. \n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
@@ -352,10 +370,10 @@ def tutorial_part3_setup():
     """ Generates a menu for the third part of the tutorial """
     global menu_screen
     title = "Tutorial Part 3: Speed"
-    text = ("In Part 3, your team is *struggling* to herd a flock of sheep.\n\n"
+    text = ("In Part 3, your team is STRUGGLING to herd a flock of sheep.\n\n"
             "It will take a long time for your team to complete the task.\n"
-            "Adding one or two dogs will help the team to work more *quickly*.\n"
-            "Completing the task more quickly will *increase* your team's performance score.\n \n"
+            "Adding one or two dogs will help the team to work more QUICKLY.\n"
+            "Completing the task more quickly will INCREASE your team's performance score.\n \n"
             "Press 'Ok' to start Part 3 (or you can choose to repeat Parts 1 and 2)\n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
@@ -376,10 +394,10 @@ def tutorial_part4_setup():
     global menu_screen
     global session_id
     title = "Tutorial Part 4: Efficiency"
-    text = ("In Part 4, your team is *easily* herding a flock of sheep.\n\n"
+    text = ("In Part 4, your team is EASILY herding a flock of sheep.\n\n"
             "There are more than enough dogs in the field. Some are not needed.\n"
-            "Removing one or two dogs will help the team to work more *efficiently*.\n"
-            "Completing the task with fewer dogs will *increase* your team's performance score.\n\n"
+            "Removing one or two dogs will help the team to work more EFFICIENTLY.\n"
+            "Completing the task with fewer dogs will INCREASE your team's performance score.\n\n"
             "Press 'Ok' to Start Part 4. \n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
@@ -408,7 +426,7 @@ def tutorial_complete_setup():
     menu.add.button('Continue to the Experiment', run_experiment)
     menu.add.button('Repeat Parts 3 and 4 of the Tutorial', set_menu_id, 33)
     menu.add.button('Repeat the Whole Tutorial', set_menu_id, 31)
-    # menu.add.button('Repeat', set_menu_id, 30)
+    menu.add.button('Repeat', set_menu_id, 30)
     return menu
 #end function
 
@@ -424,11 +442,15 @@ def experimental_block_1_setup():
     title = "Experiment Block"
     text = ("You will now be presented with a block of trials.\n\n"
 
-            "Your task is to help your team of dogs (blue dots)\nherd the sheep (black dots) into the safe area (the red square).\n\n"
+            "Your task is to help your team of dogs (blue dots)\n"
+            "herd the sheep (black dots) into the safe area (the red square).\n\n"
 
-            "Use your mouse to *add* (left click) or *remove* (right click) dogs\nto complete the task quickly *and* efficiently.\n\n"
+            "Use your mouse to ADD (left click) or REMOVE (right click) dogs\n"
+            "to complete the task quickly AND efficiently.\n\n"
 
-            "Remember: high performance is achieved by moving all sheep towards the safe area\nas quickly as possible *and* as efficiently as possible,\ni.e., herd *quickly*, but use the *minimum number of dogs*.\n\n"
+            "Remember: high performance is achieved by moving all sheep towards the safe area\n"
+            "as quickly as possible AND as efficiently as possible,\n"
+            "i.e., herd QUICKLY, but use the MINIMUM NUMBER OF DOGS.\n\n"
 
             "Press 'Continue' to start the block.\n")
             # "If you wish to repeat the tutorial, press 'Repeat Tutorial'\n")
@@ -447,16 +469,22 @@ def experimental_block_2_setup():
     # show the third screen
     title = "Experimental Block"
     text = ("You will now be presented with a block of trials.\n\n"
-            "Your task is to help your team of dogs (coloured dots)\nherd the sheep (black dots) into the safe area (the red square).\n\n"
+            
+            "Your task is to help your team of dogs (coloured dots)\n"
+            "herd the sheep (black dots) into the safe area (the red square).\n\n"
 
-            "The changing colour of each dog indicates how much influence\nthat dog feels that it has at that moment:\n"
+            "The changing colour of each dog indicates how much influence\n"
+            "that dog feels that it has at that moment:\n"
             "Red = little influence on the world around it\n"
             "Orange = moderate influence on the world around it\n"
             "Green = strong influence on the world around it\n\n"
 
-            "Use your mouse to *add* (left click) or *remove* (right click) dogs\nto complete the task quickly and efficiently.\n\n"
+            "Use your mouse to ADD (left click) or REMOVE (right click) dogs\n"
+            "to complete the task quickly and efficiently.\n\n"
 
-            "Remember: high performance is achieved by moving all sheep towards the safe area\nas quickly as possible *and* as efficiently as possible,\ni.e., herd *quickly*, but use the *minimum number of dogs*.\n\n"
+            "Remember: high performance is achieved by moving all sheep towards the safe area\n"
+            "as quickly as possible AND as efficiently as possible,\n"
+            "i.e., herd QUICKLY, but use the MINIMUM NUMBER OF DOGS.\n\n"
 
             "Press 'Continue' to start the block.\n")
 
@@ -527,8 +555,9 @@ def post_test_questions_setup1():
     menu.add.range_slider('', default=10, range_values=SLIDER_VALUES, increment=0.5, rangeslider_id='time', width=500, range_line_height=10, 
         range_text_value_color=(255, 0, 125), range_text_value_enabled=False, range_text_value_tick_number=3)
 
-    menu.add.button('Done', set_menu_id, 92, menu, True)
+
     # menu.add.button('Main Menu', set_menu_id, 0)
+    menu.add.button('Done', set_menu_id, 92, menu, True)
     return menu
 #end function
 

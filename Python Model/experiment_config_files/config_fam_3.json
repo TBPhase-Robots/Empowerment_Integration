@@ -30,11 +30,14 @@
     "grazing_movement_chance" : 0.05,
 
     "dog_forces_with_flock" : 1,
-    "dog_repulsion_from_dogs" : 1,
+    "dog_repulsion_from_dogs" : 2,
     "dog_dog_repulsion_range" : 30,
-    "dog_repulsion_from_sheep" : 1.1,
+    "dog_repulsion_from_sheep" : 0.3,
+    "dog_max_repulsion_from_sheep" : 1.2,
     "dog_attraction_to_steering_point" : 4,
     "dog_orbital_around_flock" : 8,
+    "dog_max_speed" : 5.0,
+    "dog_empowerment_vision_range" : 65,
     
     "ticks_per_choice" : 5,
     "collection_radius" : 30,

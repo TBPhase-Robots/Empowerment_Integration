@@ -3,7 +3,7 @@
     "world_height" : 600,
     "time_limit" : 5000,
 
-    "debug_dog_forces" : true,
+    "debug_dog_forces" : false,
     "debug_sheep_forces" : false,
     "debug_steering_points" : false,
     "debug_sub_flocks" : false,
@@ -33,9 +33,12 @@
     "dog_forces_with_flock" : 1,
     "dog_repulsion_from_dogs" : 2,
     "dog_dog_repulsion_range" : 30,
-    "dog_repulsion_from_sheep" : 1.1,
+    "dog_repulsion_from_sheep" : 0.3,
+    "dog_max_repulsion_from_sheep" : 1.2,
     "dog_attraction_to_steering_point" : 4,
     "dog_orbital_around_flock" : 8,
+    "dog_max_speed" : 5.0,
+    "dog_empowerment_vision_range" : 65,
     
     "ticks_per_choice" : 5,
     "collection_radius" : 30,
@@ -47,6 +50,6 @@
     "realistic_agent_movement_markers" : false,
     "realistic_agent_movement" : true,
 
-    "realistic_dog_turn_rate" : 0.08,
+    "realistic_dog_turn_rate" : 0.12,
     "realistic_sheep_turn_rate" : 0.1
 }
