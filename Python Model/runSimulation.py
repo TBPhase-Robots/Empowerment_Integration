@@ -50,7 +50,7 @@ def add_dog(pack, position, cfg, pack_id):
     return pack_id + 1
 #end function
 
-def main(config_name='experiment_config_files.config', show_empowerment=False, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
+def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
     # get current OS
     myOs = ""
 
