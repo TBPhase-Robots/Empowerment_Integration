@@ -50,12 +50,35 @@ def add_dog(pack, position, cfg, pack_id):
     return pack_id + 1
 #end function
 
-def main(config_name='experiment_config_files.config', show_empowerment=False, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
-    with open(f"experiment_config_files/{config_name}.json") as json_file:
+def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
+    # get current OS
+    myOs = ""
+
+    if (sys.platform.startswith("linux") or sys.platform.startswith("linux2")):
+        # linux
+        print("running on linux a")
+        myOs = "linux"
+    elif (sys.platform.startswith("darwin")):
+        # OS X
+        print("running on mac a")
+        myOs = "mac"
+    elif (sys.platform.startswith("win32")):
+        # Windows...
+        print("running on windows a")
+        myOs = "win"
+    
+    fname = ""
+    if(myOs == "win"):
+        fname = f"experiment_config_files\\{config_name}.json"
+    elif(myOs == "linux"):
+        fname = f"experiment_config_files/{config_name}.json"
+    with open(fname) as json_file:
         cfg = json.load(json_file)
 
     if ('show_empowerment' not in cfg):
         cfg['show_empowerment'] = show_empowerment
+
+    
 
     global screen
     log.initialise(sim_session_id, config_name, show_empowerment, use_task_weighted_empowerment)
@@ -84,7 +107,11 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
     if RECORD_VIDEO:
         (screen_width,screen_height)= screen.get_size()
         resolution = (screen_width, screen_height)
-        filename = f"{log_path}\{sim_session_id}\{config_name}_recording.avi"
+        filename = ""
+        if(myOs == "win"):
+            filename = f"{log_path}\{sim_session_id}\\{config_name}_recording.avi"
+        elif(myOs == "linux"):
+            filename = f"{log_path}/{sim_session_id}/{config_name}_recording.avi"
         video = VideoRecorder.VideoRecorder()
         fps = 30
         video.setConfig(filename, fps, resolution)
@@ -158,7 +185,7 @@ def main(config_name='experiment_config_files.config', show_empowerment=False, u
             frame = np.rot90(frame)
             video.grabScreen(frame)
         
-        inner_buffer = 30
+        inner_buffer = 10
         left_bound = cfg['target_position'][0] - 100 + inner_buffer
         right_bound = cfg['target_position'][0] + 100 - inner_buffer
         top_bound = cfg['target_position'][1] - 100 + inner_buffer
