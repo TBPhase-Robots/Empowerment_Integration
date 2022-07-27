@@ -70,7 +70,7 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
     fname = ""
     if(myOs == "win"):
         fname = f"experiment_config_files\\{config_name}.json"
-    elif(myOs == "linux"):
+    elif(myOs == "linux" or myOs == "mac"):
         fname = f"experiment_config_files/{config_name}.json"
     with open(fname) as json_file:
         cfg = json.load(json_file)
@@ -110,7 +110,7 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         filename = ""
         if(myOs == "win"):
             filename = f"{log_path}\{sim_session_id}\\{config_name}_recording.avi"
-        elif(myOs == "linux"):
+        elif(myOs == "linux" or myOs == "max"):
             filename = f"{log_path}/{sim_session_id}/{config_name}_recording.avi"
         video = VideoRecorder.VideoRecorder()
         fps = 30

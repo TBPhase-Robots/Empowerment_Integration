@@ -72,9 +72,9 @@ print(dirname)
 
 l =[]
 l.append(dirname)
-if(myOS == "win"):
+if(myOs == "win"):
     l.append('\\Empowerment Results')
-elif(myOS == "linux"):
+elif(myOs == "linux" or myOs == "mac"):
     l.append('/Empowerment Results')
 resultsDir = ''.join(l)
 
