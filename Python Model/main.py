@@ -72,18 +72,13 @@ print(dirname)
 
 l =[]
 l.append(dirname)
-l.append('/Empowerment Results')
-linuxResultsDir = ''.join(l)
+if(myOs == "win"):
+    l.append('\\Empowerment Results')
+elif(myOs == "linux" or myOs == "mac"):
+    l.append('/Empowerment Results')
+resultsDir = ''.join(l)
 
-
-print(linuxResultsDir)
-
-if(myOS == "win"):
-    RESULTS_DIR = "C:\\Users\\matth\\Documents\\Empowerment_Integration\\Python Model\\Empowerment Results"
-elif(myOS == "linux"):
-    RESULTS_DIR = linuxResultsDir
-elif(myOS == "mac"):
-    RESULTS_DIR = linuxResultsDir
+RESULTS_DIR = resultsDir
 
 # Credentials needed to log to a google sheet
 #   This function was removed at the beta stage
@@ -194,7 +189,7 @@ def set_menu_id(menu_id, menu=[], save_details_b=False):
 #end function
 
 
-def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_empowerment=True, use_task_weighted_empowerment=False):
+def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_empowerment=False, use_task_weighted_empowerment=False):
     """
     Run's a single trial of the empowerment simulation
 
@@ -280,6 +275,9 @@ def instructions_menu_setup():
 
               "For some trials it may not be possible to move all sheep into the safe area in the time available.\nIn such cases, please try to move them as close to the safe area as possible.\n\n"
 
+              "For some trials it may not be possible to move all sheep into the safe area in the time available.\n"
+              "In such cases, please try to move them AS CLOSE TO THE SAFE AREA AS POSSIBLE.\n\n"
+
               "At the end of each trial, you will be asked to answer a few short questions.\n"
               "Please answer these questions before moving on to the next trial.\n\n"
               "Before the experiment starts, a tutorial will explain how the trials work.\n")
@@ -321,7 +319,17 @@ def tutorial_part1_setup():
             "Press 'Ok' to Start Part 1. \n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
+
+
+
+
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
+
+    # to be added later, sample code for text boxes
+   # validchars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
+   # menu.add.text_input(title = "", valid_chars = validchars)
+   # menu.add.button('Done', set_menu_id, 92, menu, True)
+
     menu.add.label(text, max_char=max_char, font_size=title_size)
     menu.add.button('OK', run_simulation, 32, TUTORIAL_SEQUENCE_A[0], font_size=button_size)
     # menu.add.button('Start', run_tutorial)
@@ -531,7 +539,6 @@ def post_test_questions_setup1():
     menu.add.label('Please answer the following question...\n', max_char=max_char, font_size=title_size)
     menu.add.text_input('Please state in seconds how long you think this trial took: ', default='', textinput_id='time', input_underline='_',input_underline_len=5)
     menu.add.button('Done', set_menu_id, 92, menu, True)
-    # menu.add.button('Main Menu', set_menu_id, 0)
     return menu
 #end function
 
