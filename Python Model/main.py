@@ -248,7 +248,7 @@ def start_menu_setup():
     global current_menu_id
     menu = pygame_menu.Menu('Welcome', 800, 500,
                         theme=our_theme)
-    menu.add.text_input('Please enter your participant number here: ', default='', textinput_id='participantnumber', input_underline='_', input_underline_len=12)
+    menu.add.text_input('Please enter your participant number here: ', default='', textinput_id='participantnumber', input_underline='_', input_underline_len=8)
     menu.add.button('Start', set_menu_id, 20, border_width=2)  # this is the information section, just renamed the button as START for congruency with the QUIT button
     # menu.add.button('Instructions', set_menu_id, 20)
     # menu.add.button('Enter Details', set_menu_id, 40)
@@ -272,7 +272,7 @@ def instructions_menu_setup():
              "More dogs are available in a kennel to the right.\n"
 
              "The task must be completed quickly and efficiently, i.e., using the minimum number of dogs.\n \n"
-             "You will complete two blocks of 12 trials. This will take approximately 20 minutes.\nWhen each trial starts, some dogs will try to move the sheep towards the safe area.\n"
+             "You will complete two blocks of 12 trials. This will take approximately 20-30 minutes.\nWhen each trial starts, some dogs will try to move the sheep towards the safe area.\n"
 
               "You will help by using your mouse buttons to add or remove dogs at any point.\n"
               "-- ADDING dogs may help your team to complete the task more quickly --\n"
@@ -368,7 +368,7 @@ def tutorial_part3_setup():
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label(text, max_char=max_char, font_size=title_size)
     menu.add.button('OK', run_simulation, 34, TUTORIAL_SEQUENCE_A[2], font_size=button_size)
-    menu.add.button('Repeat Parts 1 and 2', set_menu_id, 31)
+    menu.add.button('Click here to repeat Parts 1 and 2', set_menu_id, 31)
     # menu.add.button('Start', run_tutorial)
     if DEBUG_MODE_B:
         menu.add.button('Skip', set_menu_id, 32)
@@ -488,8 +488,8 @@ def details_setup():
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label(text, max_char=max_char, font_size=title_size)
 
-    menu.add.text_input('Age (in numbers):  ', default='', textinput_id='age', input_underline='_', input_underline_len=12)
-    #menu.add.text_input('Gender:', default='', textinput_id='sex', input_underline='_', input_underline_len=15)
+    menu.add.text_input('Age (in numbers):  ', default='', textinput_id='age', input_underline='_', input_underline_len=5)
+    #menu.add.text_input('Gender:', default='', textinput_id='gender', input_underline='_', input_underline_len=15)
     menu.add.dropselect(title='Gender:', items=[('Female',0),('Male',1),('Non-Binary',2),('Prefer Not to Say',3)],dropselect_id = 'gender', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Is English your first language? (Y/N):  ', default='', textinput_id='english', input_underline='_', input_underline_len=0)
     menu.add.dropselect(title='Is English your first language?', items=[('Yes' ,0), ('No', 1)], dropselect_id = 'english', font_size=title_size, selection_option_font_size=title_size-2)
@@ -497,7 +497,7 @@ def details_setup():
     menu.add.dropselect(title='Do you have normal / corrected-to-normal vision?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'vision', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Do you have colour blindness or a colour vision deficiency? (Y/N):   ', default='', textinput_id='colour')
     menu.add.dropselect(title='Do you have colour blindness or a colour vision deficiency?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'colour', font_size=title_size, selection_option_font_size=title_size-2)
-    menu.add.text_input('How many hours per week do you play video games, on average?: ', default='', textinput_id='games', input_underline='_', input_underline_len=12)
+    menu.add.text_input('How many hours per week do you play video games, on average?: ', default='', textinput_id='games', input_underline='_', input_underline_len=5)
     #menu.add.button('Finish', set_menu_id, 70, menu, True)
     menu.add.button('Finish',  set_menu_id, -1, menu, True)
     return menu
