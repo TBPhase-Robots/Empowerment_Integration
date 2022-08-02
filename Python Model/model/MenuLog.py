@@ -26,12 +26,12 @@ class MenuLog:
                         #'date': '',
                         #'name60' : '',
                         #'date60' : '',
-                        'participantnumber' : '',
-                        'english' : '',
-                        'colour': '',
-                        'age' : '',
-                        'gender' : '',
-                        'games' : ''
+                        #'participantnumber' : '',
+                        #'english' : '',
+                        #'colour': '',
+                        #'age' : '',
+                        #'gender' : '',
+                        #'games' : ''
                         # consent is handled in paper formating following feedback from beta trials
                         # 'consent14': False,
                         #'final_consent': False
