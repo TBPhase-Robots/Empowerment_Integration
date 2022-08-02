@@ -53,11 +53,11 @@ if (sys.platform.startswith("linux") or sys.platform.startswith("linux2")):
 elif (sys.platform.startswith("darwin")):
     # OS X
     print("running on mac")
-    myOs = "mac"
+    myOS = "mac"
 elif (sys.platform.startswith("win32")):
     # Windows...
     print("running on windows")
-    myOs = "win"
+    myOS = "win"
 
 # Set the configuration and results directories folders
 CONFIG_DIR = "experiment_config_files/"
@@ -72,13 +72,18 @@ print(dirname)
 
 l =[]
 l.append(dirname)
-if(myOs == "win"):
-    l.append('\\Empowerment Results')
-elif(myOs == "linux" or myOs == "mac"):
-    l.append('/Empowerment Results')
-resultsDir = ''.join(l)
+l.append('/Empowerment Results')
+linuxResultsDir = ''.join(l)
 
-RESULTS_DIR = resultsDir
+
+print(linuxResultsDir)
+
+if(myOS == "win"):
+    RESULTS_DIR = "C:\\Users\\matth\\Documents\\Empowerment_Integration\\Python Model\\Empowerment Results"
+elif(myOS == "linux"):
+    RESULTS_DIR = linuxResultsDir
+elif(myOS == "mac"):
+    RESULTS_DIR = linuxResultsDir
 
 # Credentials needed to log to a google sheet
 #   This function was removed at the beta stage
@@ -189,7 +194,7 @@ def set_menu_id(menu_id, menu=[], save_details_b=False):
 #end function
 
 
-def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_empowerment=False, use_task_weighted_empowerment=False):
+def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_empowerment=True, use_task_weighted_empowerment=False):
     """
     Run's a single trial of the empowerment simulation
 
@@ -241,8 +246,9 @@ def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_e
 def start_menu_setup():
     # create the menu
     global current_menu_id
-    menu = pygame_menu.Menu('Welcome', 400, 500,
+    menu = pygame_menu.Menu('Welcome', 800, 500,
                         theme=our_theme)
+    menu.add.text_input('Please enter your participant number here: ', default='', textinput_id='participantnumber', input_underline='_', input_underline_len=8)
     menu.add.button('Start', set_menu_id, 20, border_width=2)  # this is the information section, just renamed the button as START for congruency with the QUIT button
     # menu.add.button('Instructions', set_menu_id, 20)
     # menu.add.button('Enter Details', set_menu_id, 40)
@@ -259,31 +265,23 @@ def instructions_menu_setup():
     global menu_screen
     title1 = ("Please read the instructions carefully\n")
 
-    text1 = ("In this experiment, you will be part of a TEAM OF VIRTUAL SHEEPDOGS,\n"
-             "working together to herd a flock of virtual sheep towards a safe area.\n\n"
+    text1 = ("In this experiment, you will be part of a team of virtual sheepdogs,\nworking together to herd a flock of virtual sheep towards a safe area.\n"
 
-             "The sheep are the WHITE dots and the safe area is the RED SQUARE.\n"
-             "The dogs are COLOURED DOTS. Some dogs are already in the field.\n"
-             "More dogs are available in a square DOGHOUSE to the right.\n\n"
+             "The sheep are the white dots and the safe area is the red square.\n"
+             "The dogs are coloured dots. Some dogs are already in the field.\n"
+             "More dogs are available in a kennel to the right.\n"
 
-             "The task must be completed QUICKLY and EFFICIENTLY, i.e.,\n"
-             "using the MINIMUM AMOUNT OF TIME and the MINIMUM NUMBER OF DOGS.\n\n"
-             
-             "You will complete TWO blocks of 12 trials.\n"
-             "When each trial starts, some dogs will try to move the sheep towards the safe area.\n"
+             "The task must be completed quickly and efficiently, i.e., using the minimum number of dogs.\n \n"
+             "You will complete two blocks of 12 trials. This will take approximately 20-30 minutes.\nWhen each trial starts, some dogs will try to move the sheep towards the safe area.\n"
 
-              "You will help by using your mouse buttons to ADD or REMOVE dogs at any point.\n"
-              "-- ADDING dogs may help your team to complete the task more QUICKLY --\n"
-              "-- REMOVING dogs may help your team to complete the task more EFFICIENTLY --\n\n"
+              "You will help by using your mouse buttons to add or remove dogs at any point.\n"
+              "-- ADDING dogs may help your team to complete the task more quickly --\n"
+              "-- REMOVING dogs may help your team to complete the task more efficiently --\n\n"
 
-              "Throughout each trial you may add or remove dogs AS MANY TIMES AS YOU WISH.\n\n"
-
-              "For some trials it may not be possible to move all sheep into the safe area in the time available.\n"
-              "In such cases, please try to move them AS CLOSE TO THE SAFE AREA AS POSSIBLE.\n\n"
+              "For some trials it may not be possible to move all sheep into the safe area in the time available.\nIn such cases, please try to move them AS CLOSE TO THE SAFE AREA AS POSSIBLE.\n\n"
 
               "At the end of each trial, you will be asked to answer a few short questions.\n"
-              "Please answer these question promptly and move on to the next trial quickly.\n\n"
-              
+              "Please answer these questions before moving on to the next trial.\n\n"
               "Before the experiment starts, a tutorial will explain how the trials work.\n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
@@ -316,24 +314,14 @@ def tutorial_part1_setup():
     """ Generates a menu for the first part of the tutorial """
     global menu_screen
     title = "Tutorial Part 1: Adding a Dog from the Kennel"
-    text = ("In Part 1, you will see ONE sheep outside the safe area.\n\n"
-            "Use your LEFT mouse button to ADD a dog from the doghouse to the field.\n"
+    text = ("In Part 1, you will see one sheep outside the safe area.\n\n"
+            "Click your LEFT mouse button to ADD a dog from the kennel to the field.\n"
             "(A dog will appear near the location of your cursor when you click.)\n"
             "Watch it move the sheep into the safe area.\n\n"
             "Press 'Ok' to Start Part 1. \n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
-
-
-
-
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
-
-    # to be added later, sample code for text boxes
-   # validchars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0']
-   # menu.add.text_input(title = "", valid_chars = validchars)
-   # menu.add.button('Done', set_menu_id, 92, menu, True)
-
     menu.add.label(text, max_char=max_char, font_size=title_size)
     menu.add.button('OK', run_simulation, 32, TUTORIAL_SEQUENCE_A[0], font_size=button_size)
     # menu.add.button('Start', run_tutorial)
@@ -348,10 +336,10 @@ def tutorial_part2_setup():
     """ Generates a menu for the second part of the tutorial """
     global menu_screen
     title = "Tutorial Part 2: Removing Dogs to the Kennel"
-    text = ("In Part 2, you will see ONE sheep being herded by SIX dogs.\n\n"
-            "Use your RIGHT mouse button to REMOVE some dogs to the doghouse.\n"
+    text = ("In Part 2, you will see one sheep being herded by six dogs.\n\n"
+            "Click your RIGHT mouse button to REMOVE some dogs to the kennel.\n"
             "(A dog near the location of your cursor will disappear when you click.)\n"
-            "Watch the remaining team complete the herding task MORE EFFICIENTLY.\n\n"
+            "Watch the remaining team complete the herding task more efficiently.\n\n"
             "Press 'Ok' to Start Part 2. \n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
@@ -370,17 +358,17 @@ def tutorial_part3_setup():
     """ Generates a menu for the third part of the tutorial """
     global menu_screen
     title = "Tutorial Part 3: Speed"
-    text = ("In Part 3, your team is STRUGGLING to herd a flock of sheep.\n\n"
+    text = ("In Part 3, your team is struggling to herd a flock of sheep.\n\n"
             "It will take a long time for your team to complete the task.\n"
-            "Adding one or two dogs will help the team to work more QUICKLY.\n"
-            "Completing the task more quickly will INCREASE your team's performance score.\n \n"
+            "ADDING one or two dogs by left clicking your mouse will help the team to work more QUICKLY.\n"
+            "Completing the task more quickly will increase your team's performance score.\n \n"
             "Press 'Ok' to start Part 3 (or you can choose to repeat Parts 1 and 2)\n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label(text, max_char=max_char, font_size=title_size)
     menu.add.button('OK', run_simulation, 34, TUTORIAL_SEQUENCE_A[2], font_size=button_size)
-    menu.add.button('Repeat Parts 1 and 2', set_menu_id, 31)
+    menu.add.button('Click here to repeat Parts 1 and 2', set_menu_id, 31)
     # menu.add.button('Start', run_tutorial)
     if DEBUG_MODE_B:
         menu.add.button('Skip', set_menu_id, 32)
@@ -394,10 +382,10 @@ def tutorial_part4_setup():
     global menu_screen
     global session_id
     title = "Tutorial Part 4: Efficiency"
-    text = ("In Part 4, your team is EASILY herding a flock of sheep.\n\n"
+    text = ("In Part 4, your team is easily herding a flock of sheep.\n\n"
             "There are more than enough dogs in the field. Some are not needed.\n"
-            "Removing one or two dogs will help the team to work more EFFICIENTLY.\n"
-            "Completing the task with fewer dogs will INCREASE your team's performance score.\n\n"
+            "REMOVING one or two dogs by right clicking your mouse will help the team to\n work more EFFICIENTLY.\n"
+            "Completing the task with fewer dogs will increase your team's performance score.\n\n"
             "Press 'Ok' to Start Part 4. \n")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
@@ -424,9 +412,9 @@ def tutorial_complete_setup():
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label(text, max_char=max_char, font_size=title_size)
     menu.add.button('Continue to the Experiment', run_experiment)
-    menu.add.button('Repeat Parts 3 and 4 of the Tutorial', set_menu_id, 33)
-    menu.add.button('Repeat the Whole Tutorial', set_menu_id, 31)
-    menu.add.button('Repeat', set_menu_id, 30)
+    menu.add.button('Clicke here to repeat Parts 3 and 4 of the Tutorial', set_menu_id, 33)
+    menu.add.button('Click here to repeat the Whole Tutorial', set_menu_id, 31)
+    # menu.add.button('Repeat', set_menu_id, 30)
     return menu
 #end function
 
@@ -442,15 +430,11 @@ def experimental_block_1_setup():
     title = "Experiment Block"
     text = ("You will now be presented with a block of trials.\n\n"
 
-            "Your task is to help your team of dogs (blue dots)\n"
-            "herd the sheep (white dots) into the safe area (the red square).\n\n"
+            "Your task is to help your team of dogs (coloured dots)\nherd the sheep (white dots) into the safe area (the red square).\n\n"
 
-            "Use your mouse to ADD (left click) or REMOVE (right click) dogs\n"
-            "to complete the task quickly AND efficiently.\n\n"
+            "Use your mouse to ADD (left click) or REMOVE (right click) dogs\nto complete the task quickly and efficiently.\n\n"
 
-            "Remember: high performance is achieved by moving all sheep towards the safe area\n"
-            "as quickly as possible AND as efficiently as possible,\n"
-            "i.e., herd QUICKLY, but use the MINIMUM NUMBER OF DOGS.\n\n"
+            "Remember: high performance is achieved by moving all sheep towards the safe area\nas quickly as possible and as efficiently as possible,\ni.e., herd quickly, but use the minimum number of dogs.\n\n"
 
             "Press 'Continue' to start the block.\n")
             # "If you wish to repeat the tutorial, press 'Repeat Tutorial'\n")
@@ -469,22 +453,16 @@ def experimental_block_2_setup():
     # show the third screen
     title = "Experimental Block"
     text = ("You will now be presented with a block of trials.\n\n"
-            
-            "Your task is to help your team of dogs (coloured dots)\n"
-            "herd the sheep (white dots) into the safe area (the red square).\n\n"
+            "Your task is to help your team of dogs (coloured dots)\nherd the sheep (white dots) into the safe area (the red square).\n\n"
 
-            "The changing colour of each dog indicates how much influence\n"
-            "that dog feels that it has at that moment:\n"
-            "Red = little influence on the world around it\n"
-            "Orange = moderate influence on the world around it\n"
-            "Green = strong influence on the world around it\n\n"
+            "The changing colour of each dog indicates how much influence\nthat dog feels that it has at that moment:\n"
+            "RED = little influence on the world around it\n"
+            "ORANGE = moderate influence on the world around it\n"
+            "GREEN = strong influence on the world around it\n\n"
 
-            "Use your mouse to ADD (left click) or REMOVE (right click) dogs\n"
-            "to complete the task quickly and efficiently.\n\n"
+            "Use your mouse to ADD (left click) or REMOVE (right click) dogs\nto complete the task quickly and efficiently.\n\n"
 
-            "Remember: high performance is achieved by moving all sheep towards the safe area\n"
-            "as quickly as possible AND as efficiently as possible,\n"
-            "i.e., herd QUICKLY, but use the MINIMUM NUMBER OF DOGS.\n\n"
+            "Remember: high performance is achieved by moving all sheep towards the safe area\nas quickly as possible and as efficiently as possible,\ni.e., herd quickly, but use the minimum number of dogs.\n\n"
 
             "Press 'Continue' to start the block.\n")
 
@@ -510,15 +488,16 @@ def details_setup():
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label(text, max_char=max_char, font_size=title_size)
 
-    menu.add.text_input('Date of Birth (dd/mm/yyyy):  ', default='', textinput_id='birth', input_underline='_', input_underline_len=12)
-    menu.add.text_input('Sex:  ', default='', textinput_id='sex', input_underline='_', input_underline_len=15)
+    menu.add.text_input('Age (in numbers):  ', default='', textinput_id='age', input_underline='_', input_underline_len=5)
+    #menu.add.text_input('Gender:', default='', textinput_id='gender', input_underline='_', input_underline_len=15)
+    menu.add.dropselect(title='Gender:', items=[('Female',0),('Male',1),('Non-Binary',2),('Prefer Not to Say',3)],dropselect_id = 'gender', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Is English your first language? (Y/N):  ', default='', textinput_id='english', input_underline='_', input_underline_len=0)
     menu.add.dropselect(title='Is English your first language?', items=[('Yes' ,0), ('No', 1)], dropselect_id = 'english', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Do you have normal / corrected-to-normal vision? (Y/N):  ', default='', textinput_id='vision', input_underline='_', input_underline_len=0))
     menu.add.dropselect(title='Do you have normal / corrected-to-normal vision?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'vision', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Do you have colour blindness or a colour vision deficiency? (Y/N):   ', default='', textinput_id='colour')
     menu.add.dropselect(title='Do you have colour blindness or a colour vision deficiency?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'colour', font_size=title_size, selection_option_font_size=title_size-2)
-    
+    menu.add.text_input('How many hours per week do you play video games, on average?: ', default='', textinput_id='games', input_underline='_', input_underline_len=5)
     #menu.add.button('Finish', set_menu_id, 70, menu, True)
     menu.add.button('Finish',  set_menu_id, -1, menu, True)
     return menu
@@ -529,7 +508,7 @@ def test_start_setup(list_of_configs, show_empowerment, use_taskweighted_empower
     global test_number
     # show the third screen
     title = "Experiment Trial"
-    text = ("Press Go when you are ready to start the next trial.")
+    text = ("Press 'Go' when you are ready to start the next trial.")
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
@@ -548,16 +527,11 @@ def post_test_questions_setup1():
     BORDER = 20
     import numpy as np
     SLIDER_VALUES = np.arange(0, 20.5, 0.5).tolist()
-    menu = pygame_menu.Menu('Well Done!', SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
-    menu.add.label('Please answer the following question promptly...\n', max_char=max_char, font_size=title_size)
-    menu.add.label('Use the slider to indicate how many seconds elapsed\nbetween your final mouse click and the end of the trial:\n', max_char=max_char, font_size=title_size)
-
-    menu.add.range_slider('', default=10, range_values=SLIDER_VALUES, increment=0.5, rangeslider_id='time', width=500, range_line_height=10, 
-        range_text_value_color=(255, 0, 125), range_text_value_enabled=False, range_text_value_tick_number=3)
-
-
-    # menu.add.button('Main Menu', set_menu_id, 0)
+    menu = pygame_menu.Menu('Done!', SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
+    menu.add.label('Please answer the following question...\n', max_char=max_char, font_size=title_size)
+    menu.add.text_input('Please state in seconds how long you think this trial took: ', default='', textinput_id='time', input_underline='_',input_underline_len=5)
     menu.add.button('Done', set_menu_id, 92, menu, True)
+    # menu.add.button('Main Menu', set_menu_id, 0)
     return menu
 #end function
 
@@ -566,17 +540,17 @@ def post_test_questions_setup2():
     global menu_screen
     SCREEN_W, SCREEN_H = menu_screen.get_size()
     BORDER = 20
-    SLIDER_VALUES = {0: 'not at all', 1: '', 2: '', 3: '', 4: '', 5: '', 6: 'completely'}
-    menu = pygame_menu.Menu('Well Done!', SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
-    menu.add.label('Please answer the following two questions promptly...\n', max_char=max_char, font_size=title_size)
+    SLIDER_VALUES = {0: 'Not at all', 1: '', 2: '', 3: '', 4: '', 5: '', 6: 'Completely'}
+    menu = pygame_menu.Menu('Done!', SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
+    menu.add.label('Please answer the following two questions...\n', max_char=max_char, font_size=title_size)
     
-    menu.add.label('Regardless of how well you feel your team performed,\nto what extent did you feel **engaged in the task**?', max_char=max_char, font_size=title_size, underline=False)
+    menu.add.label('Regardless of how well you feel your team performed,\nto what extent did you feel ENGAGED in the task?', max_char=max_char, font_size=title_size, underline=False)
     
     menu.add.label('From not at all (left) to completely (right)', max_char=max_char, font_size=text_size)
     menu.add.range_slider('', default=3, range_values=list(SLIDER_VALUES.keys()), increment=1, rangeslider_id='engaged', width=500, range_line_height=10, 
         range_text_value_color=(255, 0, 125), range_text_value_enabled=True, slider_text_value_enabled=False, value_format=lambda x: SLIDER_VALUES[x])
     
-    menu.add.label('\nRegardless of how well you feel your team performed,\nto what extent did you feel *part of the team*?', max_char=max_char, font_size=title_size)
+    menu.add.label('\nRegardless of how well you feel your team performed,\nto what extent did you feel PART OF THE TEAM?', max_char=max_char, font_size=title_size)
     menu.add.label('From not at all (left) to completely (right)', max_char=max_char, font_size=text_size)
     menu.add.range_slider('', default=3, range_values=list(SLIDER_VALUES.keys()), increment=1, rangeslider_id='part_of_team', width=500, range_line_height=10, 
         range_text_value_color=(255, 0, 125), range_text_value_enabled=True, slider_text_value_enabled=False, value_format=lambda x: SLIDER_VALUES[x])

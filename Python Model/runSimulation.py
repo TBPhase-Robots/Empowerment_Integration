@@ -110,7 +110,7 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         filename = ""
         if(myOs == "win"):
             filename = f"{log_path}\{sim_session_id}\\{config_name}_recording.avi"
-        elif(myOs == "linux" or myOs == "max"):
+        elif(myOs == "linux" or myOs == "mac"):
             filename = f"{log_path}/{sim_session_id}/{config_name}_recording.avi"
         video = VideoRecorder.VideoRecorder()
         fps = 30

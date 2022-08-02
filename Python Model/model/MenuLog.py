@@ -11,12 +11,14 @@ class MenuLog:
         #                         'infosheet5': { 'name' : '',
         #                                         'data': '', 
         #                                         'agreed': False},
-        #                         'details' : {'native_english_speaker': False,
+        #                         'details' : {'participantnumber': '',
+        #                                     'native_english_speaker': False,
         #                                     'normal vision': False,
         #                                     'colour deficiency': False,
         #                                     'signature' : '',
-        #                                     'dob': '',
-        #                                     'sex' : '',
+        #                                     'age': '',
+        #                                     'gender' : '',
+        #                                     'games' : '',
         #                                     'data' : ''},
         #                         'finalconsent': {'agreed' : False}
         #                         }
@@ -24,10 +26,12 @@ class MenuLog:
                         #'date': '',
                         #'name60' : '',
                         #'date60' : '',
-                        'english' : '',
-                        'colour': '',
-                        'birth' : '',
-                        'sex' : ''
+                        #'participantnumber' : '',
+                        #'english' : '',
+                        #'colour': '',
+                        #'age' : '',
+                        #'gender' : '',
+                        #'games' : ''
                         # consent is handled in paper formating following feedback from beta trials
                         # 'consent14': False,
                         #'final_consent': False
@@ -88,12 +92,14 @@ class MenuLog:
             pass
 
         elif menu_id == 60:
+            self.user_details['participantnumber'] = data['participantnumber']
             self.user_details['english'] = data['english']
             self.user_details['vision'] = data['vision']
             self.user_details['colour'] = data['colour']
             #self.user_details['name60'] = data['name']
-            self.user_details['birth'] = data['birth']
-            self.user_details['sex'] = data['sex']
+            self.user_details['age'] = data['age']
+            self.user_details['gender'] = data['gender']
+            self.user_details['games'] = data['games']
             #self.user_details['date60'] = data['date']
             pass
 
