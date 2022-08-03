@@ -53,7 +53,7 @@ def saveConfig(fname = 'cfg.npy'):
         "dog" : {
             #the starting positions of the dogs, must be list of 2 element tuples in the range [2..(world_sz - 2)].
             #"initial_positions" : [(10,10),(30,50), (50,30)],
-            "initial_positions" : [(8, 8)],
+            "initial_positions" : [(8, 8), (8, 14), (14, 8)],
             #"initial_positions" : [(10,10+20),(30,10+20), (50, 10+20)],
             #"initial_positions" : [(72,60),(15,40)],
             #a list of 1s where the number of elements = number of dogs
