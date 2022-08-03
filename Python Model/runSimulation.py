@@ -16,12 +16,15 @@ import time
 import os
 
 RECORD_VIDEO = True
-INITIAL_PAUSE_TIME = 200
+#INITIAL_PAUSE_TIME = 200
 
 log = Logger()
 ticks = 0
 log_path = os.path.join("Empowerment Results")
 
+# Dogs have a subflock which references the sheep assigned to them in their voronoi partition.
+# First, clear the previous subflock.
+# Then, assign each sheep to the subflock of the dog closest dog.
 def calc_voronoi_partitioning(flock, pack):
     for dog in pack:
         dog.empty_sub_flock()
@@ -36,6 +39,8 @@ def calc_voronoi_partitioning(flock, pack):
         sheep.closest_dog.add_sheep_to_sub_flock(sheep)
 #end function
 
+# Creates a sheep agent at a given position, and assigns it to the flock.
+# Returns an incremented id so that each sheep has a unique id.
 def add_sheep(flock, position, cfg, flock_id):
     agent = Sheep(position = position, id = flock_id, cfg = cfg)
     flock.add(agent)
@@ -43,6 +48,8 @@ def add_sheep(flock, position, cfg, flock_id):
     return flock_id + 1
 #end function
 
+# Creates a dog agent at a given position, and assigns it to the pack.
+# Returns an incremented id so that each sheep has a unique id.
 def add_dog(pack, position, cfg, pack_id):
     agent = Dog(position = position, id = pack_id, cfg = cfg)
     pack.add(agent)
@@ -50,10 +57,11 @@ def add_dog(pack, position, cfg, pack_id):
     return pack_id + 1
 #end function
 
+# Runs one instance of an experiment. Requires inputs of the config file to use, whether or not to show empowerment, the id to be used in data logging, and the name of the file to log to. 
+# Task-weighted empowerment is not implemented, so this value makes no difference to the experiement.
 def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_empowerment=False, sim_session_id='000000T000000', log_file_name=''):
-    # get current OS
+    # Get the operating system which is currently being used. This is needed to have the correct file path delimeters when logging and recording video.
     myOs = ""
-
     if (sys.platform.startswith("linux") or sys.platform.startswith("linux2")):
         # linux
         print("running on linux a")
@@ -67,6 +75,7 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         print("running on windows a")
         myOs = "win"
     
+    # Load the config file
     fname = ""
     if(myOs == "win"):
         fname = f"experiment_config_files\\{config_name}.json"
@@ -75,41 +84,42 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
     with open(fname) as json_file:
         cfg = json.load(json_file)
 
+    # If the config file specifies whether or not to show empowerment, then it overrides the passed in argument.
     if ('show_empowerment' not in cfg):
         cfg['show_empowerment'] = show_empowerment
 
-    
-
+    # Initialise variables for use in the simulation.
     global screen
     log.initialise(sim_session_id, config_name, show_empowerment, use_task_weighted_empowerment)
-
     ticks = 0
     end_game = False
-
     pygame.init()
-
     screen = pygame.display.set_mode([cfg['world_width'] + 80,cfg['world_height']])
     pack = pygame.sprite.Group()
     flock = pygame.sprite.Group()
     pack_id = 0
     flock_id = 99
 
+    # Add any dogs to the scene that are present in the config file.
     for pos in cfg['initial_dog_positions']:
         pack_id = add_dog(pack, np.array(pos), cfg, pack_id)
 
+    # Add any sheep to the scene that are present in the config file.
     for pos in cfg['initial_sheep_positions']:
         flock_id = add_sheep(flock, np.array(pos), cfg, flock_id)
 
+    # Log an initial state
     log.logPopulationStates('dog', pack, ticks)
     log.logPopulationStates('sheep', flock, ticks)
     log.logPopulations([pack, flock], ticks)
 
+    # Start the video recorder if necessary.
     if RECORD_VIDEO:
         (screen_width,screen_height)= screen.get_size()
         resolution = (screen_width, screen_height)
         filename = ""
         if(myOs == "win"):
-            filename = f"{log_path}\{sim_session_id}\\{config_name}_recording.avi"
+            filename = f"{log_path}\\{sim_session_id}\\{config_name}_recording.avi"
         elif(myOs == "linux" or myOs == "mac"):
             filename = f"{log_path}/{sim_session_id}/{config_name}_recording.avi"
         video = VideoRecorder.VideoRecorder()
@@ -118,20 +128,28 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         video.filename = filename
         video.startRecorder()
 
+    # The main simulation loop, runs until the game ends or the time limit is reached.
     while (ticks < cfg['time_limit'] and not end_game):
+        # Record the start time
         start_time = round(time.time() * 1000)
         if (ticks == 0):
             log.recordStartTime(datetime.now())
+        
+        # Handle events
         for event in pygame.event.get():
+            # Allows the window to close with the 'x' button.
             if event.type==QUIT:
+                # Saves the video early if the window is closed.
                 if RECORD_VIDEO:
                     video.stopRecorder()
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
+                # On leftclick, add a dog to the play area. (Only if the max number of dogs has not been reached.)
                 if (event.button == 1 and len(pack) < cfg['max_number_of_dogs']):
                     log.user_log.addMouseClick(ticks, datetime.now(), "MB:DOWN:LEFT", event.pos)
                     pack_id = add_dog(pack, np.array([event.pos[0], event.pos[1]]), cfg, pack_id)
+                # On rightclick, remove the nearest dog to the cursor from the play area.
                 elif event.button == 3:
                     log.user_log.addMouseClick(ticks, datetime.now(), "MB:DOWN:RIGHT", event.pos)
                     if (len(pack) > 0):
@@ -145,6 +163,7 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
                         log.destroyAgentInLog('dog', closest_dog.id, closest_dog.position, plt.tick_params)
                         pack.remove(closest_dog)
 
+        # Draw background and play area.
         screen.fill(colours.DGREY)
         pygame.draw.rect(screen, colours.GREY, pygame.Rect(0, 0, cfg['world_width'], cfg['world_height']))
 
@@ -156,26 +175,34 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         # Draw target box
         pygame.draw.rect(screen, colours.RED, pygame.Rect(cfg['target_position'][0] - 100, cfg['target_position'][1] - 100, 200, 200), 3)
 
+        # Call 'update' on every dog, performing the dogs behaviours.
         if (len(pack) > 0):
+            # Partitions the sheep between the dogs
             calc_voronoi_partitioning(flock, pack)
+            # Dogs run their behaviour.
             pack.update(screen, flock, pack, cfg)
         else:
             for sheep in flock:
                 sheep.closest_dog = None
 
+        # Sheep run their behaviour.
         flock.update(screen, flock, pack, cfg)
 
+        # Draw the new state of the scene to the screen
         pygame.display.flip()
-        #pygame.display.update()
 
+        # Increment time and ticks counter.
         current_time = round(time.time() * 1000)
         if (current_time - start_time < 10):
             pygame.time.wait(10 - (current_time - start_time))
         ticks += 1
+
+        # Log the state of the scene
         log.logPopulationStates('dog', pack, ticks)
         log.logPopulationStates('sheep', flock, ticks)
         log.logPopulations([pack, flock], ticks)
 
+        # Record a frame of video if necessary.
         if RECORD_VIDEO:
             # Screenshot the current pygame screen
             img = pygame.surfarray.array3d(screen)
@@ -185,6 +212,8 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
             frame = np.rot90(frame)
             video.grabScreen(frame)
         
+        # Check if the sheep have all reached the target area. If they have, end the game.
+        # There is a slight buffer around the inside of the target area. This helps make the end of the simulation be less abrupt. 
         inner_buffer = 10
         left_bound = cfg['target_position'][0] - 100 + inner_buffer
         right_bound = cfg['target_position'][0] + 100 - inner_buffer
@@ -197,8 +226,11 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         
         if (len(flock) == sheep_within_target):
             end_game = True
+    # End of simulation loop
+
     log.recordEndTime(datetime.now())
     
+    # Stop the video recording, thus saving the video file.
     if RECORD_VIDEO:
        video.stopRecorder()
     
