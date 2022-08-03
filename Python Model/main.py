@@ -596,7 +596,7 @@ def run_experimental_block(list_of_configs, show_empowerment, use_taskweighted):
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.QUIT:
-                exit()
+                saveAndQuit()
 
         # A sneaky trick, if the menu is set to the start test screen but we've reached the end of the config list then the block of tests is complete
         #   and the exectution flow should switch back to the master function which is running the experiments.
