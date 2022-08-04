@@ -109,6 +109,40 @@ class Sheep(Agent):
             # Combine the previous forces into one force vector.
             F = (cfg['sheep_resulsion_from_dogs'] * F_D) + (cfg['sheep_repulsion_from_sheep'] * F_S) + (cfg['sheep_attraction_to_sheep'] * F_G)
 
+            # check if outside the play zone:
+
+
+            x = self.position[0]
+            y = self.position[1]
+            playAreaLeftBound = cfg['play_area_x']
+            playAreaTopBound = cfg['play_area_y']
+
+            playAreaRightBound = playAreaLeftBound + cfg['play_area_width']
+            playAreaBottomBound = playAreaTopBound + cfg['play_area_height']
+            outOfBounds = False
+            boundaryForce = np.array([0.0,0.0])
+            # if outside of the play area, add a force
+            r = random.uniform(-1, 1)
+            if(x < playAreaLeftBound):
+                outOfBounds = True
+                boundaryForce += np.array([2.0,r])
+               # print("agent too left at position ", x, y)
+            if(x > playAreaRightBound):
+                outOfBounds = True
+                boundaryForce += np.array([-2.0, r])
+               # print("agent too right at position ", x, y)
+            if(y < playAreaTopBound):
+                outOfBounds = True
+              #  print("agent too high at position ", x, y)
+                boundaryForce += np.array([r, 2.0])
+            if( y > playAreaBottomBound):
+                outOfBounds = True
+              #  print("agent too low at position ", x, y)
+                boundaryForce += np.array([r, -2.0])
+
+            if(outOfBounds):
+                F += boundaryForce * 5
+
             angle = self.CalcAngleBetweenVectors(np.array([forwardX, -forwardY]), np.array(F))
 
             # Show movement markers if the debug option is enabled.
