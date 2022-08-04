@@ -704,6 +704,7 @@ def saveAndQuit():
     Saves everything logged from the menu's to file and closes the program
         This should be run in order to exit the program cleanly and not lose data!
     """
+    print('aaa')
     global menu_log
     menu_log.pickleLog(os.path.join(RESULTS_DIR, session_id, ""))
     exit()

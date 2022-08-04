@@ -81,6 +81,7 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         fname = f"experiment_config_files\\{config_name}.json"
     elif(myOs == "linux" or myOs == "mac"):
         fname = f"experiment_config_files/{config_name}.json"
+    print(os.path.abspath(os.getcwd()))
     with open(fname) as json_file:
         cfg = json.load(json_file)
 
