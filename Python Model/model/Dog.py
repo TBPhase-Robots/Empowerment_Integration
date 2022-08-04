@@ -192,7 +192,10 @@ class Dog(Agent):
             for dog in pack:
                 if (dog.id != self.id):
                     if (np.linalg.norm(self.position - dog.position) <= 8):
-                        self.position = np.add(self.position, self.position - dog.position)
+                        if (np.linalg.norm(self.position - dog.position) < 0.1):
+                            self.position = np.add(self.position, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
+                        else:
+                            self.position = np.add(self.position, self.position - dog.position)
                         collision_check = True
         
         # Ensure dogs don't move outside of the play area.
@@ -272,8 +275,11 @@ class Dog(Agent):
         F_D_D = np.zeros(2)
         for dog in pack:
             if (dog.id != self.id):
-                if (np.linalg.norm(self.position - dog.position) < moveRepelDistance):
-                    F_D_D = np.add(F_D_D, (self.position - dog.position) / np.linalg.norm(self.position - dog.position))
+                distance = np.linalg.norm(self.position - dog.position)
+                if (distance < moveRepelDistance):
+                    if (distance < 0.000000001):
+                        distance = 0.000000001
+                    F_D_D = np.add(F_D_D, (self.position - dog.position) / distance)
 
         F_D = F_D_D + (0.75 * np.array([F_D_D[1], -F_D_D[0]]))
         return F_D
