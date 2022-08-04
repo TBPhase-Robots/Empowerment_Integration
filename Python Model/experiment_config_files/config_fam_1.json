@@ -25,6 +25,11 @@
     "lambda_S" : 0.6,
     "lambda_G" : -1,
 
+    "play_area_x" : 50,
+    "play_area_y": 50,
+    "play_area_width" : 700,
+    "play_area_height" : 500, 
+
     "no_of_sheep_in_social_group" : 3,
     "sheep_vision_range" : 30,
     "grazing_movement_chance" : 0.05,

@@ -38,6 +38,11 @@
     "dog_orbital_around_flock" : 8,
     "dog_max_speed" : 5.0,
     "dog_empowerment_vision_range" : 65,
+
+    "play_area_x" : 50,
+    "play_area_y": 50,
+    "play_area_width" : 700,
+    "play_area_height" : 500, 
     
     "ticks_per_choice" : 5,
     "collection_radius" : 30,

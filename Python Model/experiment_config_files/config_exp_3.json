@@ -29,6 +29,13 @@
     "sheep_vision_range" : 40,
     "grazing_movement_chance" : 0.05,
 
+    "play_area_x" : 50,
+    "play_area_y": 50,
+    "play_area_width" : 700,
+    "play_area_height" : 500, 
+
+    
+
     "dog_forces_with_flock" : 1,
     "dog_repulsion_from_dogs" : 2,
     "dog_dog_repulsion_range" : 30,

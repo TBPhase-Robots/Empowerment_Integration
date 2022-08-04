@@ -9,6 +9,11 @@
     "debug_sub_flocks" : false,
     "debug_sheep_states" : false,
     "debug_dog_states" : false,
+
+    "play_area_x" : 50,
+    "play_area_y": 50,
+    "play_area_width" : 700,
+    "play_area_height" : 500, 
     
     "empowerment_type" : 1,
 
