@@ -308,7 +308,10 @@ class Dog(Agent):
         C = Agent.calcCoM(self, sheep_positions)
         W = steering_point
 
-        R_C_D = (self.position - C) / np.linalg.norm(self.position - C)
+        center_distance = np.linalg.norm(self.position - C)
+        if center_distance < 0.000001:
+            center_distance = 0.000001
+        R_C_D = (self.position - C) / center_distance
         R_C_W = (W - C) / np.linalg.norm(W - C)
 
         dot = np.dot(R_C_D, R_C_W)
