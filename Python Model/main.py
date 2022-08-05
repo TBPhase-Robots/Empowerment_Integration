@@ -36,7 +36,7 @@ import model.MenuLog as MenuLog
 import os
 import sys
 from sys import platform
-
+import time
 import pathlib
 
 #-------------------------------------------------
@@ -501,6 +501,7 @@ def details_setup():
     menu.add.dropselect(title='Do you have colour blindness or a colour vision deficiency?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'colour', font_size=title_size, selection_option_font_size=title_size-2)
     menu.add.text_input('How many hours per week do you play video games, on average?: ', default='', textinput_id='games', input_underline='_', input_underline_len=5)
     #menu.add.button('Finish', set_menu_id, 70, menu, True)
+    
     menu.add.button('Finish',  set_menu_id, -1, menu, True)
     return menu
 #end function
@@ -531,7 +532,10 @@ def post_test_questions_setup1():
     SLIDER_VALUES = np.arange(0, 20.5, 0.5).tolist()
     menu = pygame_menu.Menu('Done!', SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label('Please answer the following question...\n', max_char=max_char, font_size=title_size)
-    menu.add.text_input('Please state in seconds how long you think this trial took: ', default='', textinput_id='time', input_underline='_',input_underline_len=5)
+    menu.add.text_input('Please state in seconds how long you think this trial took: ', default='', textinput_id='time', input_underline='_',input_underline_len=5, maxchar=5, valid_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'])
+
+    #  valid_chars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.']
+
     menu.add.button('Done', set_menu_id, 92, menu, True)
     # menu.add.button('Main Menu', set_menu_id, 0)
     return menu
@@ -586,11 +590,17 @@ def run_experimental_block(list_of_configs, show_empowerment, use_taskweighted):
     experimental_block_1_setup_m = experimental_block_1_setup()
     experimental_block_2_setup_m = experimental_block_2_setup()
     test_start_setup_m = test_start_setup(list_of_configs, show_empowerment, use_taskweighted)
+    
+    # generate a new couple of question forms
     post_test_questions_m1 = post_test_questions_setup1()
     post_test_questions_m2 = post_test_questions_setup2()
 
+
+
     # Loop until all the experiments given in list_of_configs have been run once
     while test_number <= len(list_of_configs) and not is_test_complete_b:
+        
+
         # Blank the screen so old menu's aren't displayed behind new ones
         draw_menu_background()
 
@@ -615,6 +625,7 @@ def run_experimental_block(list_of_configs, show_empowerment, use_taskweighted):
             experimental_block_2_setup_m.draw(menu_screen)
         
         elif current_menu_id == 90:
+            
             # These lines reset the sliders on the post question menus to their default values.  
             #   There may be a better way to do this via a call back.
             post_test_questions_m1.get_widget('time').reset_value()
@@ -624,6 +635,9 @@ def run_experimental_block(list_of_configs, show_empowerment, use_taskweighted):
             test_start_setup_m.draw(menu_screen)
         
         elif current_menu_id == 91:
+
+            
+
             post_test_questions_m1.update(events)
             post_test_questions_m1.draw(menu_screen)
        
