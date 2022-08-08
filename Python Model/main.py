@@ -109,8 +109,8 @@ LIVETEST_SEQUENCE_B = [
 TUTORIAL_SEQUENCE_A = ['config_fam_1', 'config_fam_2', 'config_fam_3', 'config_fam_4']
 
 # just show a few of the trials for debugging purposes
-#LIVETEST_SEQUENCE_A = ['config_exp_12']
-#LIVETEST_SEQUENCE_B = ['config_exp_12']
+LIVETEST_SEQUENCE_A = ['config_exp_1']
+LIVETEST_SEQUENCE_B = ['config_exp_1']
 
 
 # Add config directory to all config files:
@@ -531,6 +531,18 @@ def experimental_block_2_setup():
     return menu
 #end function
 
+def check_questions_answered(id, menu, widgets):
+    found_unanswered = False
+    for widget in widgets:
+        if (not widget.value_changed()):
+            found_unanswered = True
+    
+    if (found_unanswered):
+        print("One or more questions left unanswered.")
+    else:
+        set_menu_id(id, menu, True)
+#end function
+
 def details_setup():
     global menu_screen
 
@@ -543,23 +555,23 @@ def details_setup():
     menu = pygame_menu.Menu(title, SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label(text, max_char=max_char, font_size=title_size)
 
-    menu.add.text_input('Please enter your participant number here: ', default='', textinput_id='participantnumber', input_underline='_', input_underline_len=8)
+    participant_number_widget = menu.add.text_input('Please enter your participant number here: ', default='', textinput_id='participantnumber', input_underline='_', input_underline_len=8)
 
-    menu.add.text_input("PLease enter your age (in years) here (e.g., '21'): ", default='', textinput_id='age', input_underline='_', input_underline_len=5)
+    age_widget = menu.add.text_input("PLease enter your age (in years) here (e.g., '21'): ", default='', textinput_id='age', input_underline='_', input_underline_len=5)
     #menu.add.text_input('Gender:', default='', textinput_id='gender', input_underline='_', input_underline_len=15)
-    menu.add.dropselect(title='Gender:', items=[('Female',0),('Male',1),('Non-Binary',2),('Prefer Not to Say',3)],dropselect_id = 'gender', font_size=title_size, selection_option_font_size=title_size-2)
+    gender_widget = menu.add.dropselect(title='Gender:', items=[('Female',0),('Male',1),('Non-Binary',2),('Prefer Not to Say',3)],dropselect_id = 'gender', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Is English your first language? (Y/N):  ', default='', textinput_id='english', input_underline='_', input_underline_len=0)
-    menu.add.dropselect(title='Is English your first language?', items=[('Yes' ,0), ('No', 1)], dropselect_id = 'english', font_size=title_size, selection_option_font_size=title_size-2)
+    language_widget = menu.add.dropselect(title='Is English your first language?', items=[('Yes' ,0), ('No', 1)], dropselect_id = 'english', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Do you have normal / corrected-to-normal vision? (Y/N):  ', default='', textinput_id='vision', input_underline='_', input_underline_len=0))
-    menu.add.dropselect(title='Do you have normal / corrected-to-normal vision?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'vision', font_size=title_size, selection_option_font_size=title_size-2)
+    vision_widget = menu.add.dropselect(title='Do you have normal / corrected-to-normal vision?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'vision', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Do you have colour blindness or a colour vision deficiency? (Y/N):   ', default='', textinput_id='colour')
-    menu.add.dropselect(title='Do you have colour blindness or a colour vision deficiency?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'colour', font_size=title_size, selection_option_font_size=title_size-2)
-    menu.add.text_input('How many hours per week do you spend playing video games, on average?: ', default='', textinput_id='games', input_underline='_', input_underline_len=5)
+    colour_widget = menu.add.dropselect(title='Do you have colour blindness or a colour vision deficiency?', items=[('Yes', 0), ('No', 1)], dropselect_id = 'colour', font_size=title_size, selection_option_font_size=title_size-2)
+    games_widget = menu.add.text_input('How many hours per week do you spend playing video games, on average?: ', default='', textinput_id='games', input_underline='_', input_underline_len=5)
     #menu.add.button('Finish', set_menu_id, 70, menu, True)
     text = ("\nMake sure you answered all the questions before clicking 'Finish'\n")
     menu.add.label(text, max_char=max_char, font_size=title_size)
 
-    menu.add.button('Finish',  set_menu_id, -1, menu, True)
+    menu.add.button('Finish',  check_questions_answered, -1, menu, [participant_number_widget, age_widget, gender_widget, language_widget, vision_widget, colour_widget, games_widget])
     return menu
 #end function
 
@@ -595,9 +607,9 @@ def post_test_questions_setup1():
                    "and\n"
                    "the end of the trial?\n", max_char=max_char, font_size=title_size)
     #menu.add.text_input('How many seconds passed between your final mouse click and the end of the trial: ', default='', textinput_id='time', input_underline='_',input_underline_len=5)
-    menu.add.text_input("Seconds:  ", default='', textinput_id='time', input_underline='_', input_underline_len=5)
+    time_widget = menu.add.text_input("Seconds:  ", default='', textinput_id='time', input_underline='_', input_underline_len=5)
     menu.add.label("\n", max_char=max_char, font_size=title_size)
-    menu.add.button('Done', set_menu_id, 92, menu, True)
+    menu.add.button('Done', check_questions_answered, 92, menu, [time_widget])
     # menu.add.button('Main Menu', set_menu_id, 0)
     return menu
 #end function
@@ -731,7 +743,7 @@ def run_experiment():
         block_order = (['no_empowerment_shown', 'empowerment_shown'])
 
     if (num_of_dirs % 4) >= 2:
-        use_taskweighted_empowerment = True
+        use_taskweighted_empowerment = False
     else:
         use_taskweighted_empowerment = False
 
