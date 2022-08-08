@@ -211,12 +211,13 @@ class Dog(Agent):
         elif (cfg['empowerment_type'] == 1):
             # Empowerment scales based on how many sheep are within 50 units of the dog. The closer the sheeom the higher its contribution to the empowerment score.
             if (len(self.sub_flock) > 0):
-                self.empowerment = 5
+                self.empowerment = 0.25
             else:
                 self.empowerment = 0
+            dog_emp_vision = 65
             for sheep in flock:
-                if (np.linalg.norm(self.position - sheep.position) <= 50):
-                    self.empowerment += 5 - math.floor(np.linalg.norm(self.position - sheep.position) / 10)
+                if (np.linalg.norm(self.position - sheep.position) <= dog_emp_vision):
+                    self.empowerment += (1 / len(flock)) - ((np.linalg.norm(self.position - sheep.position) / dog_emp_vision) * (1 / len(flock))) + 0.1
 
         # Agent superclass update. (Currently just draws the black border around the agent)
         super().update(screen)
@@ -234,17 +235,17 @@ class Dog(Agent):
         else:
             if (cfg['show_empowerment']):
                 # Empowerment scaled from values 0 to 20, shifting from red...
-                if (self.empowerment < 5):
-                    colour = np.array([155 + round(100 * self.empowerment / 5), 0, 0])
+                if (self.empowerment < 0.25):
+                    colour = np.array([155 + round(100 * self.empowerment / 0.25), 0, 0])
                 # ...to orange...
-                elif (self.empowerment < 10):
-                    colour = np.array([255, round(255 * (self.empowerment - 5) / 5), 0])
+                elif (self.empowerment < 0.5):
+                    colour = np.array([255, round(255 * (self.empowerment - 0.25) / 0.25), 0])
                 # ...to yellow...
-                elif (self.empowerment < 15):
-                    colour = np.array([255 - round(255 * (self.empowerment - 10) / 5), 255, 0])
+                elif (self.empowerment < 0.75):
+                    colour = np.array([255 - round(255 * (self.empowerment - 0.5) / 0.25), 255, 0])
                 # ...to green...
-                elif (self.empowerment < 20):
-                    colour = np.array([0, 255 - round(100 * (self.empowerment - 15) / 5), 0])
+                elif (self.empowerment < 1):
+                    colour = np.array([0, 255 - round(100 * (self.empowerment - 0.75) / 0.25), 0])
                 else:
                     colour = np.array([0, 155, 0])
                 pygame.draw.circle(screen, colour, self.position, 5)
