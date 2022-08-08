@@ -557,7 +557,7 @@ def details_setup():
 
     participant_number_widget = menu.add.text_input('Please enter your participant number here: ', default='', textinput_id='participantnumber', input_underline='_', input_underline_len=8)
 
-    age_widget = menu.add.text_input("PLease enter your age (in years) here (e.g., '21'): ", default='', textinput_id='age', input_underline='_', input_underline_len=5)
+    age_widget = menu.add.text_input("PLease enter your age (in years) here: ", default='', textinput_id='age', input_underline='_', input_underline_len=5)
     #menu.add.text_input('Gender:', default='', textinput_id='gender', input_underline='_', input_underline_len=15)
     gender_widget = menu.add.dropselect(title='Gender:', items=[('Female',0),('Male',1),('Non-Binary',2),('Prefer Not to Say',3)],dropselect_id = 'gender', font_size=title_size, selection_option_font_size=title_size-2)
     #menu.add.text_input('Is English your first language? (Y/N):  ', default='', textinput_id='english', input_underline='_', input_underline_len=0)
@@ -604,8 +604,7 @@ def post_test_questions_setup1():
     menu.add.label("Please answer the following question with a number (e.g., '12' or '5.5')\nand then click 'Done'...\n\n"
                    "How many seconds elapsed between\n"
                    "the last time that you added or removed a dog (i.e., your final mouse click)\n"
-                   "and\n"
-                   "the end of the trial?\n", max_char=max_char, font_size=title_size)
+                   "and the end of the trial?\n", max_char=max_char, font_size=title_size)
     #menu.add.text_input('How many seconds passed between your final mouse click and the end of the trial: ', default='', textinput_id='time', input_underline='_',input_underline_len=5)
     time_widget = menu.add.text_input("Seconds:  ", default='', textinput_id='time', input_underline='_', input_underline_len=5)
     menu.add.label("\n", max_char=max_char, font_size=title_size)
