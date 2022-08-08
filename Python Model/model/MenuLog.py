@@ -71,6 +71,9 @@ class MenuLog:
 
         data = menu.get_input_data()
 
+        print("data:")
+        print(data)
+
         if menu_id == 0:
             self.pickleLog('logs/' + self.session_id)
 
@@ -92,15 +95,22 @@ class MenuLog:
             pass
 
         elif menu_id == 60:
-            self.user_details['participantnumber'] = data['participantnumber']
-            self.user_details['english'] = data['english']
-            self.user_details['vision'] = data['vision']
-            self.user_details['colour'] = data['colour']
-            #self.user_details['name60'] = data['name']
-            self.user_details['age'] = data['age']
-            self.user_details['gender'] = data['gender']
-            self.user_details['games'] = data['games']
-            #self.user_details['date60'] = data['date']
+            for field in ['participantnumber', 'english', 'vision', 'colour', 'age', 'gender', 'games']:
+                try:
+                    self.user_details[field] = data[field]
+                except:
+                    self.user_details[field] = None
+                    print("failed to store",field)
+
+            # self.user_details['participantnumber'] = data['participantnumber']
+            # self.user_details['english'] = data['english']
+            # self.user_details['vision'] = data['vision']
+            # self.user_details['colour'] = data['colour']
+            # #self.user_details['name60'] = data['name']
+            # self.user_details['age'] = data['age']
+            # self.user_details['gender'] = data['gender']
+            # self.user_details['games'] = data['games']
+            # #self.user_details['date60'] = data['date']
             pass
 
         # Menu 80 is no longer included in the latest version
