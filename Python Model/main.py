@@ -27,6 +27,7 @@ Menu IDS are:
 """
 
 #----------------EXTERNAL MODULES-----------------
+from turtle import textinput
 import pygame
 import pygame_menu
 import runSimulation as sim
@@ -531,7 +532,9 @@ def post_test_questions_setup1():
     SLIDER_VALUES = np.arange(0, 20.5, 0.5).tolist()
     menu = pygame_menu.Menu('Done!', SCREEN_W - BORDER, SCREEN_H - BORDER, theme=our_theme)
     menu.add.label('Please answer the following question...\n', max_char=max_char, font_size=title_size)
-    menu.add.text_input('Please state in seconds how long you think this trial took: ', default='', textinput_id='time', input_underline='_',input_underline_len=5)
+    menu.add.label('How many seconds elapsed between the last time you added or removed a dog')
+    menu.add.label('i.e. the final mouse click) and the end of the trial? ')
+    menu.add.text_input('',default='', textinput_id='time', input_underline='_',input_underline_len=5)
     menu.add.button('Done', set_menu_id, 92, menu, True)
     # menu.add.button('Main Menu', set_menu_id, 0)
     return menu
