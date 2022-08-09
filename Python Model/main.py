@@ -109,8 +109,8 @@ LIVETEST_SEQUENCE_B = [
 TUTORIAL_SEQUENCE_A = ['config_fam_1', 'config_fam_2', 'config_fam_3', 'config_fam_4']
 
 # just show a few of the trials for debugging purposes
-LIVETEST_SEQUENCE_A = ['config_exp_1']
-LIVETEST_SEQUENCE_B = ['config_exp_1']
+#LIVETEST_SEQUENCE_A = ['config_exp_1']
+#LIVETEST_SEQUENCE_B = ['config_exp_1']
 
 
 # Add config directory to all config files:
@@ -127,7 +127,8 @@ sys.path.append(CONFIG_DIR)
 # These initial values shouldn't be changed unless you know what you're doing!!
 DEBUG_MODE_B = False
 SCREEN_RESOLUTION = (1280, 720)
-menu_screen = pygame.display.set_mode((1280, 720))
+menu_screen = pygame.display.set_mode()
+#pygame.display.toggle_fullscreen()
 current_menu_id = 1
 session_id = '000000T000000'
 
@@ -240,7 +241,7 @@ def run_simulation(exit_to_menu, config_file_name='', list_of_configs=[], show_e
     last_config_run = config_name_with_parameters
 
     # Not sure if this is always needed but to be on the safe side, recreate the menu window after the simulation window closes.
-    menu_screen = create_start_screen()
+    menu_screen = create_start_screen(True)
 
     # set the menu we go to after the simulation is complete based on the parameter passed when the simulation was initiated
     current_menu_id = exit_to_menu
@@ -867,7 +868,7 @@ def main():
     menu_log = MenuLog.MenuLog(session_id)
 
     # Create and setup the pygame window/screen
-    menu_screen = create_start_screen();  
+    menu_screen = create_start_screen(True);  
 
     # Start pygame
     pygame.init()

@@ -95,11 +95,13 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
     ticks = 0
     end_game = False
     pygame.init()
-    screen = pygame.display.set_mode([cfg['world_width'] + 80,cfg['world_height']])
+    #screen = pygame.display.set_mode([cfg['world_width'] + 80,cfg['world_height']])
+    screen = pygame.display.set_mode([1920, 1080])
     pack = pygame.sprite.Group()
     flock = pygame.sprite.Group()
     pack_id = 0
     flock_id = 99
+    play_area_resolution = [cfg['world_width'] + 80,cfg['world_height']]
 
     # Add any dogs to the scene that are present in the config file.
     for pos in cfg['initial_dog_positions']:
@@ -117,14 +119,14 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
     # Start the video recorder if necessary.
     if RECORD_VIDEO:
         (screen_width,screen_height)= screen.get_size()
-        resolution = (screen_width, screen_height)
+        resolution = ([screen_width, screen_height])
         filename = ""
         if(myOs == "win"):
             filename = f"{log_path}\\{sim_session_id}\\{config_name}_recording.avi"
         elif(myOs == "linux" or myOs == "mac"):
             filename = f"{log_path}/{sim_session_id}/{config_name}_recording.avi"
         video = VideoRecorder.VideoRecorder()
-        fps = 30
+        fps = 10
         video.setConfig(filename, fps, resolution)
         video.filename = filename
         video.startRecorder()
@@ -211,7 +213,7 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         log.logPopulations([pack, flock], ticks)
 
         # Record a frame of video if necessary.
-        if RECORD_VIDEO:
+        if RECORD_VIDEO and ticks % 3 == 0:
             # Screenshot the current pygame screen
             img = pygame.surfarray.array3d(screen)
             # Convert the screenshot to a numpy array
