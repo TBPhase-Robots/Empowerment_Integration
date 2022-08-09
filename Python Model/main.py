@@ -109,8 +109,8 @@ LIVETEST_SEQUENCE_B = [
 TUTORIAL_SEQUENCE_A = ['config_fam_1', 'config_fam_2', 'config_fam_3', 'config_fam_4']
 
 # just show a few of the trials for debugging purposes
-LIVETEST_SEQUENCE_A = ['config_exp_1']
-LIVETEST_SEQUENCE_B = ['config_exp_1']
+#LIVETEST_SEQUENCE_A = ['config_exp_1']
+#LIVETEST_SEQUENCE_B = ['config_exp_1']
 
 
 # Add config directory to all config files:
