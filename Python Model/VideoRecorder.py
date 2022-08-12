@@ -18,7 +18,7 @@ class VideoRecorder():
 
 
     def startRecorder(self):
-        self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, self.resolution)
+        self.out = cv2.VideoWriter(self.filename, self.codec, self.fps, (int(self.resolution[0]), (int(self.resolution[1]))))
 
 
     def grabScreen(self, frame):
