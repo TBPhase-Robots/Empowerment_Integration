@@ -205,10 +205,10 @@ class Dog(Agent):
         elif (self.position[1] < 10): self.position[1] = 10
 
         # Show empowerment based on type selection.
-        if (cfg['empowerment_type'] == 0):
+        if (cfg['empowerment_type'] == 0): # don't use this
             # Empowerment is equal the the size of the subflock allocated.
             self.empowerment = len(self.sub_flock)
-        elif (cfg['empowerment_type'] == 1):
+        elif (cfg['empowerment_type'] == 2): # use raw empowerment
             # Empowerment scales based on how many sheep are within 50 units of the dog. The closer the sheeom the higher its contribution to the empowerment score.
             if (len(self.sub_flock) > 0):
                 self.empowerment = 0.25
@@ -217,6 +217,16 @@ class Dog(Agent):
             dog_emp_vision = 65
             for sheep in flock:
                 if (np.linalg.norm(self.position - sheep.position) <= dog_emp_vision):
+                    self.empowerment += (1 / len(flock)) - ((np.linalg.norm(self.position - sheep.position) / dog_emp_vision) * (1 / len(flock))) + 0.1
+        elif (cfg['empowerment_type'] == 1): # use task_weighted_empowerment
+            if (len(self.sub_flock) > 0):
+                self.empowerment = 0.25
+            else:
+                self.empowerment = 0
+            dog_emp_vision = 65
+            for sheep in flock:
+                # check if sheep is within vision range *and* between the dog and the safe zone
+                if (np.linalg.norm(self.position - sheep.position) <= dog_emp_vision) and (self.position - sheep.position)[0] * (sheep.position-target)[0] > 0 and (self.position - sheep.position)[1] * (sheep.position-target)[1] >0 :
                     self.empowerment += (1 / len(flock)) - ((np.linalg.norm(self.position - sheep.position) / dog_emp_vision) * (1 / len(flock))) + 0.1
 
         # Agent superclass update. (Currently just draws the black border around the agent)

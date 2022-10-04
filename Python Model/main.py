@@ -743,9 +743,9 @@ def run_experiment():
         block_order = (['no_empowerment_shown', 'empowerment_shown'])
 
     if (num_of_dirs % 4) >= 2:
-        use_taskweighted_empowerment = False
+        use_taskweighted_empowerment = True
     else:
-        use_taskweighted_empowerment = False
+        use_taskweighted_empowerment = True  # fixes task_weigthed empowerment as always being used
 
     # Run each block of trials
     for block in block_order:

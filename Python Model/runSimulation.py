@@ -174,9 +174,6 @@ def main(config_name='config_exp_5', show_empowerment=False, use_task_weighted_e
         
      #   pygame.draw.rect(screen, colours.BLUE, pygame.Rect(cfg['play_area_x'], cfg['play_area_y'], cfg['play_area_width'], cfg['play_area_height']), 3)
 
-
-
-
         # Draw dogs in pen
         for i in range(0, cfg['max_number_of_dogs'] - len(pack)):
             pygame.draw.circle(screen, colours.BLACK, [cfg['world_width'] + 20 + ((i % 3) * 20), 20 + (math.floor(i / 3) * 20)], 7)
