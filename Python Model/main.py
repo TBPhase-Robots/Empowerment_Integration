@@ -743,7 +743,7 @@ def run_experiment():
         block_order = (['no_empowerment_shown', 'empowerment_shown'])
 
     if (num_of_dirs % 4) >= 2:
-        use_taskweighted_empowerment = True
+        use_taskweighted_empowerment = True  # always use task_weighted for the rest of the participants
     else:
         use_taskweighted_empowerment = True  # fixes task_weigthed empowerment as always being used
 
